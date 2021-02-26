@@ -1,0 +1,33 @@
+---
+Name: Delivery
+After: "*"
+---
+Schrattenholz\Order\Preis:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_Preis_Extension
+Schrattenholz\OrderProfileFeature\OrderProfileFeature_Basket:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_OrderProfileFeature_ClientOrder_Extension
+    - Schrattenholz\Delivery\Delivery_Basket_Extension
+Schrattenholz\OrderProfileFeature\OrderProfileFeature_ClientOrder:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_OrderProfileFeature_ClientOrder_Extension
+SilverStripe\CMS\Controllers\ContentController:
+  extensions:
+    - Schrattenholz\Delivery\DeliveryExtension
+SilverStripe\CMS\Model\SiteTree:
+  extensions:
+    - Schrattenholz\Delivery\DeliveryExtension
+Schrattenholz\Order\OrderAdmin:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_OrderAdmin
+Schrattenholz\Order\OrderConfig:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_ShopConfig
+Schrattenholz\Order\Attribute:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_Attributes_Extension
+Schrattenholz\Order\ProductList:
+  extensions:
+    - Schrattenholz\Delivery\DeliverySetup_ProductListExtension
+

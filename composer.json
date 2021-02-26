@@ -1,0 +1,26 @@
+{
+    "name": "schrattenholz/delivery",
+    "description": "delivery",
+    "type": "silverstripe-vendormodule",
+    "keywords": ["silverstripe", "delivery"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Fabian Schrattenholz",
+            "email": "fabian@schrattenholz.de"
+        }
+    ],
+    "require": {
+        "silverstripe/framework": "^4.1"
+    },
+	"extra": {
+		"expose": [
+		  "template"
+		]
+	  },
+	  "autoload": {
+	  "psr-4": {
+		"Schrattenholz\\Delivery\\": "src"
+	  }
+	}
+}
