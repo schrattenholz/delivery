@@ -102,7 +102,6 @@ class Route extends DataObject
 			// Iterate over results
 			$zipIDs=[];
 			foreach($result as $row) {
-Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----_____ getZIPs'.$row['ZIPID']);
 				array_push($zipIDs,$row['ZIPID']);
 			}
 			return $zipIDs;
@@ -133,9 +132,7 @@ Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----
 			'Delivery_ZIPCodes'  =>array(
 					'title'=>'PLZ',
 					'callback'=>function($record, $column, $grid){
-						$zips=ArrayList::create($this->getZIPs($record->ID));
-						
-						return  ListboxField::create($column,'Delivery_ZIPCodes',Delivery_ZIPCode::get()->filter(['ID'=>new ArrayList(array(6545))])->map("ID", "Title", "Bitte auswählen"));
+						return  ListboxField::create($column,'Delivery_ZIPCodes',Delivery_ZIPCode::get()->filter(['ID'=>$this->getZIPs($record->ID)])->map("ID", "Title", "Bitte auswählen"));
 				}),
 			/*'Price'  =>array(
 					'title'=>'',
@@ -175,42 +172,20 @@ Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		$deliveryDays=[];
-		foreach($deliverySetup->DeliveryDays() as $dd){
+		foreach($deliverySetup->Route_DeliveryDays() as $dd){
 			array_push($deliveryDays,$dd->ID);
 		}
 		$heute = strtotime(date("Y-m-d"));
 		$nextDeliveryDays=new ArrayList();
 		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
-			
-			$deadline=$dd->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
-
-			//nächstes Vorkommen des Tages
-			
-			if($deliverySetup->DeliveryStart && $deliverySetup->DeliveryStart>=$heute){
-				$liefertermin=strtotime($dd->Day,$deliveryStart);
-			}else{
-				$liefertermin=strtotime($dd->Day);
+			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+			Injector::inst()->get(LoggerInterface::class)->error("nextDeliveryDay=".$nextDate->Short);
+			if($nextDate){
+				$naechsterTermin=strtotime('next '.$dd->Day,$heute);
+				$nextDeliveryDays->push(new ArrayData(array("ID"=>$dd->ID,"NextDeliveryDay"=>$nextDate->Org)));
 			}
-			
-			$bestellschluss=strtotime('-'.$deadline->DaysBefore.' day', $liefertermin);
-			
-
-			if($bestellschluss>=$heute){
-				
-				$nextDeliveryDays->push(new ArrayData(array("ID"=>$dd->ID,"NextDeliveryDay"=>strtotime($dd->Day,$heute),'Deadline'=>$deadline->DaysBefore)));
-			}else if (!$deliverySetup->NoNextDeliveryDate){
-			//übernächstes Vorkommen des Tages
-			$naechsterTermin=strtotime('next '.$dd->Day,$heute);
-			$nextDeliveryDays->push(new ArrayData(array("ID"=>$dd->ID,"NextDeliveryDay"=>$naechsterTermin)));
-			}else{
-			//Da der erste Abholtag im Datumsbereich (deliveryStart) schon vorueber ist, 
-			//und der darauffolgende Abholtag nicht verwendet werden 
-			//darf NoNextDeliveryDate=true), wird false zurueck gegeben
-			return false;
 		}
-		}
-		
 		$nextDeliveryDay=$nextDeliveryDays->First()->NextDeliveryDay;
 		
 		foreach($nextDeliveryDays->Sort("NextDeliveryDay","ASC") as $dd){

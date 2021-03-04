@@ -54,41 +54,41 @@ class CollectionDay extends DeliveryDay
 	}
  	public function getCMSFields()
 	{
-		
 		$fields=parent::getCMSFields();
 		$fields->addFieldToTab('Root.Main',LiteralField::create('InfoOpeneningHours','Öffnungszeit:'));
 		$fields->addFieldToTab('Root.Main',TimeField::create('TimeFrom','von'));
 		$fields->addFieldToTab('Root.Main',TimeField::create('TimeTo','bis'));
-
-		
-		
 		return $fields;
 	}
-	public function getNextCollectionDate($currentOrderCustomerGroupID,$deliverySetupID){
-		
+/*	public function DeliveryDay_getNextDate_Data($vars){
+		//Extend getNextDate in Schrattenholz\Delivery\DeliveryDay
+				Injector::inst()->get(LoggerInterface::class)->error("HOOK_DeliveryDay_getNextDate_Data=".$this->TimeFrom);
+		$data=$vars->Data;
+		$data->push(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo."muh"));
+
+	}*/
+	public function getNextDate($currentOrderCustomerGroupID,$deliverySetupID){
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$heute = strtotime(date("Y-m-d"));
 		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
-		$nextDeliveryDay=strtotime('next '.$this->Day);
-		
-		if($deliverySetup->DeliveryStart && $deliverySetup->DeliveryStart>=$heute){
-			$deliveryStart=strtotime($deliverySetup->DeliveryStart);
-			$liefertermin=strtotime($this->Day,$deliveryStart);
+		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
+		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
+			$liefertermin=strtotime($this->owner->Day,$deliveryStart);
+			//Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate deliveryStart=".strftime("%Y.%m.%d",$deliveryStart));
 		}else{
-			$liefertermin=strtotime($this->Day);
+			$liefertermin=strtotime($this->owner->Day);
 		}
-		
 		$bestellschluss=strtotime('-'.$deadline->DaysBefore.' day', $liefertermin);
-		
 		if($bestellschluss>=$heute){
 			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss in der zukunft");
-			$nextDeliveryDay=strtotime($this->Day,$liefertermin);
+			$nextDeliveryDay=strtotime($this->owner->Day,$liefertermin);
 		}else if (!$deliverySetup->NoNextDeliveryDate){
 			// der nächste Abholtag ist nach dem Bestellschluss, es muss der uebernächste Tag genommen werden
-			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag ist abgeluafen; zeige den naechstten abholtag an");
-			$nextDeliveryDay=strtotime("next ".$this->Day, strtotime($this->Day));
+			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; zeige den naechstten abholtag an");
+			$nextDeliveryDay=strtotime("next ".$this->owner->Day, strtotime($this->owner->Day));
 		}else{
-			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag ist abgeluafen; es gibt keinen weiteren");
+			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; es gibt keinen weiteren");
 			//Da der erste Abholtag im Datumsbereich (deliveryStart) schon vorueber ist, 
 			//und der darauffolgende Abholtag nicht verwendet werden 
 			//darf NoNextDeliveryDate=true), wird false zurueck gegeben

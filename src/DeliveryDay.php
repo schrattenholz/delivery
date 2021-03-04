@@ -3,6 +3,7 @@
 namespace Schrattenholz\Delivery;
 
 use SilverStripe\ORM\DataObject;
+use SilverStripe\View\ArrayData;
 use Silverstripe\Forms\TextField;
 use Silverstripe\Forms\NumericField;
 use Silverstripe\Forms\CheckboxField;
@@ -121,6 +122,39 @@ class DeliveryDay extends DataObject
 			}
 		}
 	}
-
+	public function getNextDate($currentOrderCustomerGroupID,$deliverySetupID){
+		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
+		$heute = strtotime(date("Y-m-d"));
+		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
+		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
+		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+				if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
+			$liefertermin=strtotime($this->owner->Day,$deliveryStart);
+		
+		}else{
+			$liefertermin=strtotime($this->owner->Day);
+		}
+		$bestellschluss=strtotime('-'.$deadline->DaysBefore.' day', $liefertermin);
+		if($bestellschluss>=$heute){
+			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss in der zukunft");
+			$nextDeliveryDay=strtotime($this->owner->Day,$liefertermin);
+		}else if (!$deliverySetup->NoNextDeliveryDate){
+			// der nächste Abholtag ist nach dem Bestellschluss, es muss der uebernächste Tag genommen werden
+			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; zeige den naechstten abholtag an");
+			$nextDeliveryDay=strtotime("next ".$this->owner->Day, strtotime($this->owner->Day));
+		}else{
+			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; es gibt keinen weiteren");
+			//Da der erste Abholtag im Datumsbereich (deliveryStart) schon vorueber ist, 
+			//und der darauffolgende Abholtag nicht verwendet werden 
+			//darf NoNextDeliveryDate=true), wird false zurueck gegeben
+			return false;
+		}
+		$data=new ArrayData(array("Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay),"Org"=>$nextDeliveryDay));
+		
+		$vars=new ArrayData(array("Data"=>$data));
+		//Injector::inst()->get(LoggerInterface::class)->error("call HOOK_DeliveryDay_getNextDate_Data");
+		$this->extend('DeliveryDay_getNextDate_Data', $vars);
+		return $data;
+	}
 }
 

@@ -49,7 +49,7 @@ class DeliverySetup extends DataObject
 		Injector::inst()->get(LoggerInterface::class)->info('enrollDeliverySetup');
 	}
 	private static $many_many=[
-		'DeliveryDays'=>DeliveryDay::class,
+		'Route_DeliveryDays'=>DeliveryDay::class,
 		'CollectionDays'=>CollectionDay::class,
 		'Routes'=>Route::class
 	];
@@ -62,20 +62,21 @@ class DeliverySetup extends DataObject
 	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID){
 		$sortedCollectionDays=new ArrayList();
 		foreach($this->CollectionDays() as $cD){
-			
-			if($cD->getNextCollectionDate($orderCustomerGroupID,$deliverySetupID)){
-				Injector::inst()->get(LoggerInterface::class)->error("TimeFrom=".strftime("%H:%M",strtotime($cD->TimeFrom)));
+			$nextDate=$cD->getNextDate($orderCustomerGroupID,$deliverySetupID);
+			if($nextDate){
+				//Injector::inst()->get(LoggerInterface::class)->error("TimeFrom=".strftime("%H:%M",strtotime($cD->TimeFrom)));
+				
 				$sortedCollectionDays->add(
 					array(
-					"Sort"=>$cD->getNextCollectionDate($orderCustomerGroupID,$deliverySetupID)->Short,
+					"Sort"=>$nextDate->Short,
 					"DayTranslated"=>$cD->DayTranslated(),
 					"Date"=>array(
-						"Short"=>$cD->getNextCollectionDate($orderCustomerGroupID,$deliverySetupID)->Short,
-						"Eng"=>$cD->getNextCollectionDate($orderCustomerGroupID,$deliverySetupID)->Eng
+						"Short"=>$nextDate->Short,
+						"Eng"=>$nextDate->Eng
 					),
 					"Time"=>array(
-						"From"=>strftime("%H:%M",strtotime($cD->TimeFrom)),
-						"To"=>strftime("%H:%M",strtotime($cD->TimeTo))
+						"From"=>strftime("%H:%M",strtotime($nextDate->TimeFrom)),
+						"To"=>strftime("%H:%M",strtotime($nextDate->TimeTo))
 						),
 					"Day"=>$cD->Day,
 					"ID"=>$cD->ID),
@@ -91,7 +92,7 @@ class DeliverySetup extends DataObject
 		
 		
 		//Felder entfernen
-		$fields->removeByName('DeliveryDays');
+		$fields->removeByName('Route_DeliveryDays');
 		$fields->removeByName('CollectionDays');
 		$fields->removeFieldFromTab('Root.Main','SortOrder');
 
@@ -118,7 +119,7 @@ class DeliverySetup extends DataObject
 		//Auswahl der Lieferoptionen
 		$fields->addFieldToTab('Root.Main',FormAction::create('enrollDeliverySetup')->setTitle('Liefer-Setup ausspielen'));
 		
-        $deliveryDays = MultiSelectField::create('DeliveryDays', 'Routen / Liefertage', $this);
+        $deliveryDays = MultiSelectField::create('Route_DeliveryDays', 'Routen / Liefertage', $this);
         $fields->addFieldToTab('Root.Main', $deliveryDays);
 		
 		
@@ -129,9 +130,12 @@ class DeliverySetup extends DataObject
     }
 	
 	public function getActiveRoutes(){
-		if($this->DeliveryDays()){
+		
+		// DeliveryDays sind die einzelnen Tage an denen Routen zur Verfügung stehen. 
+		// DeliveryDayID + RouteID
+		if($this->Route_DeliveryDays()){
 			$routes=[];
-			foreach($this->DeliveryDays() as $dd){
+			foreach($this->Route_DeliveryDays() as $dd){
 				array_push($routes,$dd->RouteID);
 			}
 			return array_unique($routes);
@@ -174,7 +178,7 @@ class DeliverySetup extends DataObject
 			$cities=ArrayList::create();
 			foreach($this->Routes()->filter('ID',$routes) as $r){
 				
-				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die DeliveryDays der Route, die im Liefersetup aktiviert sind
+				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die Liefertage der Route, die im Liefersetup aktiviert sind (Route_DeliveryDays)
 				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
 				
 				// Stellt alle verfuebaren Orte auf der Route zusammen
@@ -195,7 +199,7 @@ class DeliverySetup extends DataObject
 		
 		$routes=[];
 		$this->Routes()->removeAll();
-		foreach($this->DeliveryDays() as $dd){
+		foreach($this->Route_DeliveryDays() as $dd){
 			$this->Routes()->add($dd->Route());
 		}
 		array_unique($routes);

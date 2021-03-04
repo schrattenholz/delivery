@@ -39,14 +39,16 @@ use SilverStripe\ORM\ValidationException;
 use SilverStripe\Forms\ListboxField;
 
 use Schrattenholz\Order\Preis;
-
+use Schrattenholz\Order\OrderConfig;
 class DeliverySetup_ProductListExtension extends DataExtension{
 	private static $has_one=['DeliverySetup'=>DeliverySetup::class];
 	private static $allowed_actions = array (
 	);
 	// Extension for ProductList::getCMSFields
 	public function addExtension(FieldList $fields){
+		if($this->owner->ID==OrderConfig::get()->First()->ProductRootID){
 		$fields->addFieldToTab("Root.Produkte",DropdownField::create("DeliverySetupID","Liefer-Setup",DeliverySetup::get()->map('ID', 'Title'))->setEmptyString(utf8_encode('(Bitte auswählen)')),'Preise');
+		}
 	}
 	
 	//Speichert in jedes PriceBlockElement der gewählten Liste die Deliverywerte ein
