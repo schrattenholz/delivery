@@ -16,7 +16,159 @@ function loadShippingOptions(priceBlockElementID,productID){
 		}
 	});
 }
+function loadZips(zipFragment){
+	jQuery.ajax({
+		url: pageLink+"/getZipsAjax?zipFragment="+zipFragment,
+		success: function(data) {
+		var zips=JSON.parse(data);
+		var zipAr=Array();
+		for(var c=0;c<zips.length;c++){
+			var tmp=[];
+			tmp['id']=zips[c]['id'];
+			tmp['value']=zips[c]['title'];
+			zipAr.push(tmp);
+		}
+		//console.log(zipAr.length);
+		/*
+		JSON
+			$returnValues->Status=false;
+			$returnValues->Message="Das Passwort muss mindestens 8 Zeiechen haben!";
+			$returnValues->Value='object';
+		*/
+		if($('#OrderProfileFeature_RegistrationForm_useraccounttab_ZIP').autocomplete("instance")){
+			$('#OrderProfileFeature_RegistrationForm_useraccounttab_ZIP').autocomplete("option","source",zipAr);
+		}else{
+			$('#OrderProfileFeature_RegistrationForm_useraccounttab_ZIP').autocomplete(
+				{
+				source:zipAr,
+				minLength:3,
+				select: function (event, ui) {
+						//event.preventDefault();
+						loadCitiesByZIPID(ui.item.id);
+						//return false;
+					},				
+				close: function (event, ui) {
+						//event.preventDefault();
+						alert("close");
+						loadCitiesByZIPID(ui.item.id);
+						//return false;
+					}
+				}
+			);
+			jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+			  var ul = this.menu.element;
+			  ul.outerWidth(this.element.outerWidth());
+			}
+		}
+				//$('#OrderProfileFeature_RegistrationForm_useraccounttab_ZIP').autocomplete("option","source", zipAr);
+}
+	})
+}
+function loadCitiesByZIPID(zipID){
+	jQuery.ajax({
+		url: pageLink+"/getCitiesByZIPAjax?zipID="+zipID,
+		success: function(data) {
+			var zips=JSON.parse(data);
+			var zipAr=Array();
+			$('#OrderProfileFeature_RegistrationForm_useraccounttab_City').html("");
+			if(zips.length>1){
+				$('#OrderProfileFeature_RegistrationForm_useraccounttab_City')
+					.append($("<option></option>")
+						.text("Bitte wählen")); 
+			}
+			$.each(zips, function(key, value) {   
+				$('#OrderProfileFeature_RegistrationForm_useraccounttab_City')
+					.append($("<option></option>")
+						.attr("value", value.title)
+						.text(value.title)); 
+				});
+
+			}
+	});
+}
+function loadCitiesByZIP(zip,ref){
+	jQuery.ajax({
+		url: pageLink+"/getCitiesByZIPAjax?zip="+zip,
+		success: function(data) {
+			var zips=JSON.parse(data);
+			var zipAr=Array();
+			
+			var selectedCity=false;
+			if(ref.val().length>2){
+				selectedCity=ref.val();
+			}
+			if(zips.length>1){
+				ref
+					.append($("<option value=''></option>")
+						.text("Bitte wählen")); 
+			}
+			ref.html("");
+			if(zips.length>0){
+				$.each(zips, function(key, value) { 
+					if(selectedCity==value.title){
+						ref
+							.append($("<option selected='selected'></option>")
+								.attr("value", value.title)
+								.text(value.title)); 
+					}else{
+						ref
+							.append($("<option></option>")
+								.attr("value", value.title)
+								.text(value.title)); 
+					}
+				});
+			}else{
+				ref
+					.append($("<option value=''></option>")
+						.text("Bitte PLZ eingeben")); 
+			}
+		}
+	});
+}
 jQuery( document ).ready(function() {
+	if(jQuery('#signup-tab').length>0){
+		
+		var loadZipFlag=true;
+		var refCityFieldSignUp=$('#signup-tab #City');
+		var refZIPFieldSignUp=$('#signup-tab #ZIP');
+		if(refCityFieldSignUp.val()!=""){
+			
+			loadCitiesByZIP(refZIPFieldSignUp.val(),refCityFieldSignUp);
+			
+		}
+		
+		refZIPFieldSignUp.on('keyup focusout' ,function(){
+			if($(this).val().length>2){
+				
+					//loadZips($(this).val());
+				if($(this).val().length>=4){
+					loadCitiesByZIP($(this).val(),refCityFieldSignUp);
+				}
+			}
+		});
+	}
+	if(jQuery('#checkoutAddress').length>0){
+		var loadZipFlag=true;
+		var refCityField=$('#OrderProfileFeature_RegistrationForm_useraccounttab_City');
+		var refZIPField=$('#OrderProfileFeature_RegistrationForm_useraccounttab_ZIP');
+		if(refCityField.val()!=""){
+			
+			loadCitiesByZIP(refZIPField.val(),refCityField);
+			
+		}
+		refZIPField.on('keyup focusout' ,function(){
+			
+			if($(this).val().length>2){
+				
+					//loadZips($(this).val());
+				if($(this).val().length>=4){
+					loadCitiesByZIP($(this).val(),refCityField);
+				}
+			}
+		});
+	}
+	
+	
 	if(jQuery('#checkoutDelivery').length>0){
 		jQuery('#checkoutDelivery').submit(function (event) {
 				event.preventDefault();

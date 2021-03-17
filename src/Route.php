@@ -180,7 +180,7 @@ class Route extends DataObject
 		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
 			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
-			Injector::inst()->get(LoggerInterface::class)->error("nextDeliveryDay=".$nextDate->Short);
+			//Injector::inst()->get(LoggerInterface::class)->error("nextDeliveryDay=".$nextDate->Short);
 			if($nextDate){
 				$naechsterTermin=strtotime('next '.$dd->Day,$heute);
 				$nextDeliveryDays->push(new ArrayData(array("ID"=>$dd->ID,"NextDeliveryDay"=>$nextDate->Org)));

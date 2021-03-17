@@ -30,7 +30,12 @@ class DeliveryExtension extends DataExtension {
 		'setCheckoutAddress_Basket',
 		'LinkCheckoutDelivery',
 		'setCheckoutDelivery',
-		'getShippingOptions'
+		'getShippingOptions',
+		'getZIPs',
+		'getZipsAjax',
+		'getCities',
+		'getCitiesByZIP',
+		'getCitiesByZIPAjax'
 	);
 	public function getShippingOptions($data){
 		$priceBlockElementID=$data['priceBlockElementID'];
@@ -251,8 +256,63 @@ class DeliveryExtension extends DataExtension {
 	public function getDeliveryTypes(){
 		return DeliveryType::get();
 	}
-	public function getCities(){
-		return City::get();
+	public function getCities($cityFragment=0){
+		if($cityFragment){
+			return City::get()->filter(["Title:PartialMatch"=>$cityFragment]);
+		}else{
+			return City::get();
+		}
+		
+	}
+	public function getCitiesByZIPID($zipID=0){
+		if($zipID){
+			return City::get()->innerJoin("Delivery_City_Delivery_ZIPCodes","\"DCDZ\".\"Delivery_CityID\"=\"Delivery_City\".\"ID\"","DCDZ")->where("DCDZ.Delivery_ZIPCodeID=".$zipID);
+		}else{
+			return City::get();
+		}
+	}
+
+	public function getCitiesByZIPIDAjax($data){
+		$cities=[];
+		foreach($this->getCitiesByZIPID($data['zipID']) as $city){
+			array_push($cities,["id"=>$city->ID,"title"=>$city->Title,"zipID"=>$data['zipID']]);
+		}
+		return json_encode($cities);
+	}
+	public function getCitiesByZIP($zip=0){
+		$zipObj=Delivery_ZIPCode::get()->filter("Title",$zip)->First();
+		if($zipObj){
+			$zipID=$zipObj->ID;
+			if($zip){
+				return City::get()->innerJoin("Delivery_City_Delivery_ZIPCodes","\"DCDZ\".\"Delivery_CityID\"=\"Delivery_City\".\"ID\"","DCDZ")->where("DCDZ.Delivery_ZIPCodeID=".$zipID);
+			}else{
+				return City::get();
+			}
+		}else{
+			return new ArrayList();
+		}
+	}
+
+	public function getCitiesByZIPAjax($data){
+		$cities=[];
+		foreach($this->getCitiesByZIP($data['zip']) as $city){
+			array_push($cities,["id"=>$city->ID,"title"=>$city->Title,"zip"=>$data['zip']]);
+		}
+		return json_encode($cities);
+	}
+	public function getZips($zipFragment=0){
+		if($zipFragment){
+			return Delivery_ZipCode::get()->filter(["Title:StartsWith"=>$zipFragment]);
+		}else{
+			return Delivery_ZipCode::get();
+		}
+	}
+	public function getZipsAjax($data){
+		$zips=[];
+		foreach($this->getZips($data['zipFragment']) as $zip){
+			array_push($zips,["id"=>$zip->ID,"title"=>$zip->Title]);
+		}
+		return json_encode($zips);
 	}
 	public function getCollectionDays(){
 		return CollectionDay::get();
