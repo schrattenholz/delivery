@@ -68,7 +68,7 @@ class Delivery_OrderAdmin extends Extension
 				],
 				'OrderStatus'=>[
 					'title'=>'OrderStatus',
-					'filter'=>'ExactMatchFilter'
+					'filter'=>'PartialMatchFilter'
 				],
 				'CollectionDay.Day'=>[
 					'title'=>'CollectionDay.Day',
