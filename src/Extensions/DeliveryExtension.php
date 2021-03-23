@@ -143,6 +143,7 @@ class DeliveryExtension extends DataExtension {
 	}
 	public function setCheckoutDelivery($data){
 		$returnValues=new ArrayList(['Status'=>'good','Message'=>false,'Value'=>false]);
+		$personenDaten=$this->owner->getCheckoutAdress();
 		$delivery=json_decode($this->getOwner()->utf8_urldecode($data['delivery']),true);
 		$basket=$this->owner->getBasket();
 		$deliveryType=DeliveryType::get()->filter('Type',$delivery['DeliveryType'])->First();
@@ -151,14 +152,23 @@ class DeliveryExtension extends DataExtension {
 		$this->owner->extend('setCheckoutDelivery_SaveToBasket', $vars);
 		if($delivery['DeliveryType']=="delivery"){
 			// Lieferung
-			 if(floatval($deliveryType->MinOrderValue)<=floatval($basket->TotalPrice()->Price)){
-				$basket->ShippingDate=str_replace (".","-",$delivery['DeliveryDate']);
-				$basket->RouteID=$delivery['DeliveryRoute'];
-				$basket->CollectionDayID=0;
+			
+			if($this->owner->DeliverySetup()->getCity($this->owner->CurrentOrderCustomerGroup()->ID,$personenDaten->ZIP,$personenDaten->City)){
+				 if(floatval($deliveryType->MinOrderValue)<=floatval($basket->TotalPrice()->Price)){
+					$basket->ShippingDate=str_replace (".","-",$delivery['DeliveryDate']);
+					$basket->RouteID=$delivery['DeliveryRoute'];
+					$basket->CollectionDayID=0;
+				}else{
+					// Lieferoptionen nicht gespeichert
+					$returnValues->Status="error";
+					$returnValues->Message="Der Mindestbestellwert für eine Lieferung ist nicht erreicht. Bitte wählen Sie eine andere Lieferoption.";
+					$returnValues->Value='';
+					return json_encode($returnValues);
+				}
 			}else{
-				// Lieferoptionen nicht gespeichert
+				// Ort wird nicht beliefert
 				$returnValues->Status="error";
-				$returnValues->Message="Der Mindestbestellwert für eine Lieferung ist nicht erreicht. Bitte wählen Sie eine andere Lieferoption.";
+				$returnValues->Message="Zur Zeit liefern wir nicht an den von dir gewählten Ort. Bitte sprich uns doch an. Vielleicht können wir es einrichten.";
 				$returnValues->Value='';
 				return json_encode($returnValues);
 			}
