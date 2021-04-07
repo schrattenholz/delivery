@@ -143,13 +143,22 @@ class DeliveryExtension extends DataExtension {
 	}
 	public function setCheckoutDelivery($data){
 		$returnValues=new ArrayList(['Status'=>'good','Message'=>false,'Value'=>false]);
-		$personenDaten=$this->owner->getCheckoutAdress();
+		$personenDaten=$this->owner->getCheckoutAddress();
 		$delivery=json_decode($this->getOwner()->utf8_urldecode($data['delivery']),true);
 		$basket=$this->owner->getBasket();
 		$deliveryType=DeliveryType::get()->filter('Type',$delivery['DeliveryType'])->First();
 		$basket->DeliveryTypeID=$deliveryType->ID;
-		$vars=new ArrayData(array("Basket"=>$basket,"Data"=>$delivery));
+		$vars=new ArrayData(array("Basket"=>$basket,"Data"=>$delivery,"ReturnValues"=>$returnValues));
+		// Hook 
 		$this->owner->extend('setCheckoutDelivery_SaveToBasket', $vars);
+		
+		if($returnValues->Status=="error"){
+			// In einer der HOOKs ist die Validierung fehlgeschlagen
+			return json_encode($returnValues);
+		}
+		
+		
+		
 		if($delivery['DeliveryType']=="delivery"){
 			// Lieferung
 			
@@ -327,9 +336,9 @@ class DeliveryExtension extends DataExtension {
 	public function getCollectionDays(){
 		return CollectionDay::get();
 	}
-	public function CheckoutAdressDeliveryForm(){
+	public function CheckoutAddressDeliveryForm(){
 		return $this->getOwner()->renderWith(ThemeResourceLoader::inst()->findTemplate(
-				"Schrattenholz\\Delivery\\Includes\\CheckoutAdressDeliveryForm",
+				"Schrattenholz\\Delivery\\Includes\\CheckoutAddressDeliveryForm",
 				SSViewer::config()->uninherited('themes')
 			));
 	}
