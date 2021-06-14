@@ -62,9 +62,10 @@ class DeliverySetup extends DataObject
 	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID){
 		$sortedCollectionDays=new ArrayList();
 		foreach($this->CollectionDays() as $cD){
+			Injector::inst()->get(LoggerInterface::class)->error("CollectionDays=".$cD->DayTranslated());
 			$nextDate=$cD->getNextDate($orderCustomerGroupID,$deliverySetupID);
 			if($nextDate){
-				//Injector::inst()->get(LoggerInterface::class)->error("TimeFrom=".strftime("%H:%M",strtotime($cD->TimeFrom)));
+				
 				
 				$sortedCollectionDays->add(
 					array(
