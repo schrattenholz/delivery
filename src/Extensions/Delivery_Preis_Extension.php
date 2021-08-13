@@ -42,25 +42,26 @@ class Delivery_Preis_Extension extends DataExtension {
 			}
 			*/
 			//StandardAbholtage ermitteln
-			$collectionDays=array();
+			/*$collectionDays=array();
 			foreach(CollectionDay::get()->filter('IsSpecial','0') as $r){
 				//$this->owner->CollectionDays()->add($r);
 				array_push($collectionDays,$r->ID);
 			}
-			
+			*/
 			//StandardLiefertage ermitteln
-			$deliveryDays=array();
+			/*$deliveryDays=array();
 			foreach(DeliveryDay::get()->filter('IsSpecial','0') as $r){
 				//$this->owner->DeliveryDays()->add($r);
 				array_push($deliveryDays,$r->ID);
 			}
-			$collectionDay=CheckboxSetField::create('CollectionDays','Abholtage',CollectionDay::get())->setValue($collectionDays);
+			*/
+			//$collectionDay=CheckboxSetField::create('CollectionDays','Abholtage',CollectionDay::get())->setValue($collectionDays);
 			//$route=CheckboxSetField::create('Routes','Lieferrouten',Route::get())->setValue($routes);
-			$deliveryDay=CheckboxSetField::create('DeliveryDays','Liefertage',DeliveryDay::get()->filter('ClassName','Schrattenholz\Delivery\DeliveryDay')->sort('RouteID'))->setValue($deliveryDays);
+		//	$deliveryDay=CheckboxSetField::create('DeliveryDays','Liefertage',DeliveryDay::get()->filter('ClassName','Schrattenholz\Delivery\DeliveryDay')->sort('RouteID'))->setValue($deliveryDays);
 		}else{
-			$collectionDay=CheckboxSetField::create('CollectionDays','Abholtage',CollectionDay::get());
+			//$collectionDay=CheckboxSetField::create('CollectionDays','Abholtage',CollectionDay::get());
 			//$route=CheckboxSetField::create('Routes','Lieferrouten',Route::get());
-			$deliveryDay=CheckboxSetField::create('DeliveryDays','Liefertage',DeliveryDay::get()->filter('ClassName','Schrattenholz\Delivery\DeliveryDay')->sort('RouteID'));
+			//$deliveryDay=CheckboxSetField::create('DeliveryDays','Liefertage',DeliveryDay::get()->filter('ClassName','Schrattenholz\Delivery\DeliveryDay')->sort('RouteID'));
 		}
 	//	$fields->addFieldToTab('Root.Lieferung',CheckboxField::create('DeliverySpecial','Dieses hat indivuelle Lieferoptionen und bestimmt die Lieferoptionen für alle Produkte im Warenkorb'));
 		//$fields->addFieldToTab('Root.Lieferung',$collectionDay);
