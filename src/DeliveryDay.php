@@ -43,7 +43,7 @@ class DeliveryDay extends DataObject
 		
 	);
 	private static $has_one=[
-		'Route'=>Route::class,
+		'Route'=>Route::class
 	];
 	private static $has_many=[
 		'Deadlines'=>Deadline::class
@@ -111,6 +111,7 @@ class DeliveryDay extends DataObject
 		));
 		return $fields;
 	}
+
 	public function onAfterWrite(){
 		parent::onAfterWrite();
 		foreach(OrderCustomerGroup::get() as $ocg){

@@ -96,6 +96,5 @@ class CollectionDay extends DeliveryDay
 		}
 		return new ArrayData(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo,"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay)));
 	}
-
 }
 

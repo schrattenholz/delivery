@@ -128,10 +128,10 @@ class DeliveryExtension extends DataExtension {
 		$deliveryTypes=ArrayList::create();
 		$basket=$this->owner->getBasket();
 		
-		foreach(DeliveryType::get() as $dd){
+		foreach(DeliveryType::get() as $dt){
 			
-			if(floatval($dd->MinOrderValue)<=floatval($basket->TotalPrice()->Price)){
-				$deliveryTypes->push($dd);
+			if(floatval($dt->MinOrderValues()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID))<=floatval($basket->TotalPrice()->Price)){
+				$deliveryTypes->push($dt);
 			}
 		}
 		return $deliveryTypes;

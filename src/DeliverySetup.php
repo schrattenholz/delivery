@@ -46,7 +46,7 @@ class DeliverySetup extends DataObject
 		"enrollDeliverySetup"
 	];
 	public function enrollDeliverySetup(){
-		Injector::inst()->get(LoggerInterface::class)->info('enrollDeliverySetup');
+		//Injector::inst()->get(LoggerInterface::class)->info('enrollDeliverySetup');
 	}
 	private static $many_many=[
 		'Route_DeliveryDays'=>DeliveryDay::class,
@@ -59,6 +59,14 @@ class DeliverySetup extends DataObject
 	private static $summary_fields = [
 		'Title' => 'Liefer-Setup'
     ];
+	public function MinOrderValue($ocgID,$type){
+		//OrderCustomerGroupID und Type werden aus dem Template gesendet Product_Info_ShippingOptions.ss
+		
+		$deliveryType=DeliveryType::get()->filter("Type",$type)->First();
+		return MinOrderValue::get()->filter(array('OrderCustomerGroupID'=>$ocgID,'DeliveryTypeID'=>$deliveryType->ID))->First()->Value;
+		
+		
+	}
 	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID){
 		$sortedCollectionDays=new ArrayList();
 		foreach($this->CollectionDays() as $cD){
