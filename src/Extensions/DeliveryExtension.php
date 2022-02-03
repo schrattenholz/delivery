@@ -41,7 +41,7 @@ class DeliveryExtension extends DataExtension {
 		$priceBlockElementID=$data['priceBlockElementID'];
 		$productID=$data['productID'];
 
-		$data=new ArrayData(['id'=>$productID,'v'=>$priceBlockElementID]);
+		$data=new ArrayData(['ID'=>$productID,'v'=>$priceBlockElementID]);
 		return $this->owner->customise($data)->renderWith(ThemeResourceLoader::inst()->findTemplate(
 				"Schrattenholz\\OrderProfileFeature\\Includes\\Product_Info_ShippingOptions",
 				SSViewer::config()->uninherited('themes')
@@ -55,6 +55,7 @@ class DeliveryExtension extends DataExtension {
 		$values=new ArrayList();
 		
 		$basket=$this->owner->getBasket();
+		Injector::inst()->get(LoggerInterface::class)->error("BasketDeliverySetup".$productID);
 		$priceBlockElements=Product::get()->byID($productID)->GroupPreise();
 		// Hole das DeliverySetup der Produktvariante
 		if(!$priceBlockElementID && $priceBlockElements->Count>0){
