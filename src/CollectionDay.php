@@ -25,7 +25,7 @@ use SilverStripe\Forms\GridField\GridFieldFilterHeader;
 use Symbiote\GridFieldExtensions\GridFieldEditableColumns;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 use Schrattenholz\OrderProfileFeature\OrderCustomerGroup;
-
+use SilverStripe\ORM\ArrayList;
 //Debugging
 use SilverStripe\Core\Injector\Injector;
 use Psr\Log\LoggerInterface;
@@ -73,9 +73,10 @@ class CollectionDay extends DeliveryDay
 		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
 		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+		//Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate deliveryStart=".strftime("%Y.%m.%d",$deliveryStart));
 		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
 			$liefertermin=strtotime($this->owner->Day,$deliveryStart);
-			//Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate deliveryStart=".strftime("%Y.%m.%d",$deliveryStart));
+			
 		}else{
 			$liefertermin=strtotime($this->owner->Day);
 		}
@@ -94,7 +95,45 @@ class CollectionDay extends DeliveryDay
 			//darf NoNextDeliveryDate=true), wird false zurueck gegeben
 			return false;
 		}
-		return new ArrayData(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo,"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay)));
+		return new ArrayData(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo,"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay),"DayObject"=>$nextDeliveryDay));
+	}
+	public function getNextDates($currentOrderCustomerGroupID,$deliverySetupID,$weeks){
+		
+		$dates=new ArrayList();
+		$firstDate=$this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+		if($firstDate){
+			$dates->add(
+						array(
+						"TimeFrom"=>$this->TimeFrom,
+						"TimeTo"=>$this->TimeTo,
+						"Eng"=>strftime("%Y.%m.%d",$firstDate->DayObject),
+						"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
+						"Short"=>strftime("%d.%m",$firstDate->DayObject),
+						"DayObject"=>$firstDate->DayObject
+						)
+					);
+				
+			for($c=1;$c<$weeks;$c++){
+				
+				
+				$nextDeliveryDay=strtotime('+'.$c.' week '.strtotime($firstDate->DayObject),$firstDate->DayObject);
+				$dates->add(new ArrayData(
+					array(
+						"TimeFrom"=>$this->TimeFrom,
+						"TimeTo"=>$this->TimeTo,
+						"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
+						"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
+						"Short"=>strftime("%d.%m",$nextDeliveryDay),
+						"DayObject"=>$nextDeliveryDay
+						)
+					)
+				);
+				
+			}
+			return $dates;
+		}else{
+			return false;
+		}		
 	}
 }
 

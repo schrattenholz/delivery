@@ -123,13 +123,44 @@ class DeliveryDay extends DataObject
 			}
 		}
 	}
+	// Gibt eine spanne von Lieferterminen zurueck
+	public function getNextDates($currentOrderCustomerGroupID,$deliverySetupID,$weeks){
+		$dates=new ArrayList();
+		$firstDate=$this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+		if($firstDate){
+			$dates->add(
+						array(
+						"TimeFrom"=>$this->TimeFrom,
+						"TimeTo"=>$this->TimeTo,
+						"Eng"=>strftime("%Y.%m.%d",$firstDate->DayObject),
+						"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
+						"Short"=>strftime("%d.%m",$firstDate->DayObject),
+						"DayObject"=>$firstDate->DayObject
+						)
+					);
+				
+			for($c=1;$c<$weeks;$c++){
+				
+				
+				$nextDeliveryDay=strtotime('+'.$c.' week '.strtotime($firstDate->DayObject),$firstDate->DayObject);
+				$dates->add(new ArrayData(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo,"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay),"DayObject"=>$nextDeliveryDay)));
+				
+			}
+			return $dates;
+		}else{
+			return false;
+		}
+	}
+	
+	
+	// Gibt den nachst möeglichen Liefertermin zurueck. Fuer Es wird nur ein Liefertermin automatisch angezeigt
 	public function getNextDate($currentOrderCustomerGroupID,$deliverySetupID){
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$heute = strtotime(date("Y-m-d"));
 		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
 		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
-				if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
+		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
 			$liefertermin=strtotime($this->owner->Day,$deliveryStart);
 		
 		}else{
@@ -150,7 +181,15 @@ class DeliveryDay extends DataObject
 			//darf NoNextDeliveryDate=true), wird false zurueck gegeben
 			return false;
 		}
-		$data=new ArrayData(array("Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay),"Org"=>$nextDeliveryDay));
+		$data=new ArrayData(
+			array(
+				"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
+				"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
+				"Short"=>strftime("%d.%m",$nextDeliveryDay),
+				"DayObject"=>$nextDeliveryDay,
+				"Day"=>$this->Day
+			)
+		);
 		
 		$vars=new ArrayData(array("Data"=>$data));
 		//Injector::inst()->get(LoggerInterface::class)->error("call HOOK_DeliveryDay_getNextDate_Data");

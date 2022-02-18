@@ -108,7 +108,7 @@ class DeliveryExtension extends DataExtension {
 		}
 	}
 	public function DefaultDeliverySetup(){
-		Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----_____ DefaultDeliverySetup');
+		//Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----_____ DefaultDeliverySetup');
 		$defaultSetup=DeliverySetup::get()->filter('IsDefault',1)->First();
 		return $defaultSetup;
 	}
@@ -121,7 +121,7 @@ class DeliveryExtension extends DataExtension {
 		$specialSetup=DeliverySetup::get()->byID($priceBlockElement->DeliverySetupID);
 		$values=new ArrayList();
 		$values->PriceBlockElement=$priceBlockElement;
-		Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----_____ SpecialDeliverySetup specialSetup Title='.$specialSetup->Title);
+		//Injector::inst()->get(LoggerInterface::class)->error('-----------------____-----_____ SpecialDeliverySetup specialSetup Title='.$specialSetup->Title);
 		return $specialSetup;
 	}
 
@@ -130,8 +130,9 @@ class DeliveryExtension extends DataExtension {
 		$basket=$this->owner->getBasket();
 		
 		foreach(DeliveryType::get() as $dt){
+			$isActive=$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",1)->First()->IsActive;
 			
-			if(floatval($dt->MinOrderValues()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value)<=floatval($basket->TotalPrice()->Price)){
+			if($isActive && floatval($dt->MinOrderValues()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value)<=floatval($basket->TotalPrice()->Price)){
 				$deliveryTypes->push($dt);
 			}
 		}

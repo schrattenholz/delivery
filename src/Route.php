@@ -169,34 +169,77 @@ class Route extends DataObject
 		return $fields;
 	}	
 	public function getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetupID){
+		Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		$deliveryDays=[];
 		foreach($deliverySetup->Route_DeliveryDays() as $dd){
+			
 			array_push($deliveryDays,$dd->ID);
 		}
 		$heute = strtotime(date("Y-m-d"));
-		$nextDeliveryDays=new ArrayList();
-		
+		$dates=new ArrayList();
+		$dayFormatter = new \IntlDateFormatter(
+			"de-DE",
+			\IntlDateFormatter::NONE,
+			\IntlDateFormatter::NONE,
+			'Europe/Berlin',
+			\IntlDateFormatter::GREGORIAN,
+			'eee'
+		);
+		$dates=new ArrayList();
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
-			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
-			//Injector::inst()->get(LoggerInterface::class)->error("nextDeliveryDay=".$nextDate->Short);
-			if($nextDate){
-				$naechsterTermin=strtotime('next '.$dd->Day,$heute);
-				$nextDeliveryDays->push(new ArrayData(array("ID"=>$dd->ID,"NextDeliveryDay"=>$nextDate->Org)));
+			Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
+			$firstDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+			
+		
+			if($firstDate){
+				//$naechsterTermin=strtotime('next '.$dd->Day,$heute);
+				$dates->push(new ArrayData(
+						array(
+							"ID"=>$dd->ID,
+							"NextDeliveryDay"=>$firstDate->DayObject,
+							"TimeFrom"=>$dd->TimeFrom,
+							"TimeTo"=>$dd->TimeTo,
+							"Eng"=>strftime("%Y.%m.%d",$firstDate->DayObject),
+							"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
+							"Short"=>strftime("%d.%m",$firstDate->DayObject),
+							"DayShort"=>$dayFormatter->format($firstDate->DayObject),
+							"DayObject"=>$firstDate->DayObject
+						)
+					)
+				);
+				for($c=1;$c<$deliverySetup->WeeksToShow;$c++){
+					$nextDeliveryDay=strtotime('+'.$c.' week '.$firstDate->Day,$firstDate->DayObject);
+					//Injector::inst()->get(LoggerInterface::class)->error("route nextDeliveryDay=".strftime("%Y.%m.%d",$firstDate->DayObject));
+					$dates->add(new ArrayData(
+						array(
+							"TimeFrom"=>$this->TimeFrom,
+							"TimeTo"=>$this->TimeTo,
+							"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
+							"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
+							"Short"=>strftime("%d.%m",$nextDeliveryDay),
+							"DayShort"=>$dayFormatter->format($nextDeliveryDay),
+							"DayObject"=>$nextDeliveryDay
+							)
+						)
+					);
+					
+				}
 			}
 		}
-		$nextDeliveryDay=$nextDeliveryDays->First()->NextDeliveryDay;
-		
-		foreach($nextDeliveryDays->Sort("NextDeliveryDay","ASC") as $dd){
+		$nextDeliveryDay=$dates->First()->NextDeliveryDay;
+		//Findet den naechst moeglichen Liefertag -> $nextDeliveryDay
+		/*foreach($dates->Sort("NextDeliveryDay","ASC") as $dd){
 			if($nextDeliveryDay>$dd->NextDeliveryDay){
 				$nextDeliveryDay=$dd->NextDeliveryDay;
 				if(strtotime('-'.$dd->Deadline.' day', $nextDeliveryDay)>=strtotime($heute)){
 					return strftime("%d.%m.%Y",$nextDeliveryDay);
 				}
 			}
-		}
-		return strftime("%d.%m.%Y",$nextDeliveryDay);
+		}*/
+		//return strftime("%d.%m.%Y",$nextDeliveryDay);
+		return $dates->Sort("Eng","ASC");
 	}
 
 }

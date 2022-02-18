@@ -40,7 +40,8 @@ class DeliverySetup extends DataObject
 		'IsPrimary'=>'Boolean',
 		'DeliveryStart'=>'Date',
 		'NoNextDeliveryDate'=>'Boolean',
-		'EnrollDeliverySetup'=>'Boolean'
+		'EnrollDeliverySetup'=>'Boolean',
+		'WeeksToShow'=>'Enum("1,2,3,4,5,6,7,8","1")'
 	);
 	private static $allowed_actions=[
 		"enrollDeliverySetup"
@@ -63,37 +64,43 @@ class DeliverySetup extends DataObject
 		//OrderCustomerGroupID und Type werden aus dem Template gesendet Product_Info_ShippingOptions.ss
 		
 		$deliveryType=DeliveryType::get()->filter("Type",$type)->First();
-		return MinOrderValue::get()->filter(array('OrderCustomerGroupID'=>$ocgID,'DeliveryTypeID'=>$deliveryType->ID))->First()->Value;
+		$group=$deliveryType->OrderCustomerGroups()->filter(["OrderCustomerGroupID"=>$ocgID,"DeliveryTypeID"=>$deliveryType->ID])->First();
+		Injector::inst()->get(LoggerInterface::class)->error("deliveryType->ID=".$deliveryType->ID."ocgID=".$ocgID. " group minordervlue=".$group->MinOrderValue);
+		return $group->MinOrderValue;
 		
 		
 	}
 	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID){
+		Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays");
 		$sortedCollectionDays=new ArrayList();
 		foreach($this->CollectionDays() as $cD){
-			Injector::inst()->get(LoggerInterface::class)->error("CollectionDays=".$cD->DayTranslated());
-			$nextDate=$cD->getNextDate($orderCustomerGroupID,$deliverySetupID);
-			if($nextDate){
-				
-				
-				$sortedCollectionDays->add(
-					array(
-					"Sort"=>$nextDate->Short,
-					"DayTranslated"=>$cD->DayTranslated(),
-					"Date"=>array(
-						"Short"=>$nextDate->Short,
-						"Eng"=>$nextDate->Eng
-					),
-					"Time"=>array(
-						"From"=>strftime("%H:%M",strtotime($nextDate->TimeFrom)),
-						"To"=>strftime("%H:%M",strtotime($nextDate->TimeTo))
+			
+			$nextDates=$cD->getNextDates($orderCustomerGroupID,$deliverySetupID,$this->WeeksToShow);
+			if($nextDates){
+				foreach($nextDates as $nextDate){
+					$sortedCollectionDays->add(
+						array(
+						"Sort"=>$nextDate->Short,
+						"DayTranslated"=>$cD->DayTranslated(),
+						"Date"=>array(
+							"Short"=>$nextDate->Short,
+							"Eng"=>$nextDate->Eng
 						),
-					"Day"=>$cD->Day,
-					"ID"=>$cD->ID),
-					
-				);
+						"Eng"=>$nextDate->Eng,
+						"Time"=>array(
+							"From"=>strftime("%H:%M",strtotime($nextDate->TimeFrom)),
+							"To"=>strftime("%H:%M",strtotime($nextDate->TimeTo))
+							),
+						"Day"=>$cD->Day,
+						"ID"=>$cD->ID),
+						
+					);
+					Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays ".$nextDate->Eng);
+				}
 			}
+			
 		}
-		return $sortedCollectionDays->Sort("Sort","ASC");
+		return $sortedCollectionDays->Sort("Date.Eng","ASC");
 	}
 	  public function getCMSFields()
     {
@@ -113,6 +120,11 @@ class DeliverySetup extends DataObject
 		
 		$fields->addFieldToTab('Root.Main',DateField::create("DeliveryStart",utf8_encode("Datum der frühsten Liefermöglichkeit")));
 		
+		// Legt fest, wieviele Wochen angeboten werden
+		$fields->addFieldsToTab('Root.Main', [
+			DropdownField::create('WeeksToShow', 'Anzahl Wochen, für die Termine angezeigt werden.( Bei 1 ist es nur der nächst mögliche Termin, bei 2 wird auch die darauf folgende Woche angezeigt)',singleton('Schrattenholz\\Delivery\\DeliverySetup')->dbObject('WeeksToShow')->enumValues())
+        ]);
+		
 		// Regelt ob der nächst mögliche Liefertermin angeboten wird, 
 		// wenn der erste Termin durch den Bestellschluss schon abgelaufen ist
 		
@@ -128,7 +140,10 @@ class DeliverySetup extends DataObject
 		//Auswahl der Lieferoptionen
 		$fields->addFieldToTab('Root.Main',FormAction::create('enrollDeliverySetup')->setTitle('Liefer-Setup ausspielen'));
 		
-        $deliveryDays = MultiSelectField::create('Route_DeliveryDays', 'Routen / Liefertage', $this);
+        $deliveryDays = MultiSelectField::create('Route_DeliveryDays', 'Routen / Liefertage', $this,false,DeliveryDay::get()->Filter("ClassName","Schrattenholz\Delivery\DeliveryDay"));
+		//Es sollen nur die Einträge von DeliveryDay angezeigt werden, alle andere müssen ausgefiltert werden
+		//$collectionsDays=
+		//$deliveryDays->setDisabledItems($inChangeSets);
         $fields->addFieldToTab('Root.Main', $deliveryDays);
 		
 		

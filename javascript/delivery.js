@@ -230,7 +230,7 @@ jQuery( document ).ready(function() {
 		if($('.delivery .custom-select').length>0){
 			$('.delivery .custom-select').on('change',function(){
 				console.log("deliveryday");
-				setDeliveryDate();
+				setDelivery();
 			});
 		}
 		if($('.collection .custom-select').length>0){
@@ -248,7 +248,7 @@ function searchCity(city){
 		if($(this).attr('data-city').localeCompare(city)){
 			//$('.delivery .custom-select').val($(this).val());
 			if($("#deliveryType").val()=="delivery"){
-				//setDeliveryDate();
+				//setDelivery();
 			}
 			return found = true;
 		}
@@ -265,24 +265,49 @@ function searchZIP(zip){
 			if(zipsAr[c]==zip && $(this).attr('data-city')==$('#OrderProfileFeature_RegistrationForm_useraccounttab_City').val()){
 				console.log(zip +" = "+zipsAr[c]+" val="+$(this).val());
 				$('.delivery .custom-select').val($(this).val());
-				setDeliveryDate()
+				setDelivery()
 				return found = true;
 			}
 		}
 	});
 	return found;
 }
-function setDeliveryDate(){
+function initDeliveryDateListener(){
+	$('.deliveryDates input').each(function(){
+		$(this).on("change", function(){
+			alert($(this).val());
+			setDeliveryDate($(this).val());
+		});
+	});
+}
+function setDeliveryDate(date){
+	$('#deliveryDate').val(date);
+}
+function setDelivery(){
 	var select=$('.delivery .custom-select');
 	var option=$('.delivery .custom-select').children("option:selected");
 	//console.log("ddate="+option.attr('data-deliverydate'));
+	var deliveryDates=option.attr('data-deliverydate').split(';');
 	if(select.val()){
-		var deliverynotice="<h6 class='mt-2'>Liefertermin:</h6>"+option.attr('data-deliverydate');
+		var deliverynotice;
+		if(deliveryDates.length>1){
+			deliverynotice="<h6 class='mt-2'>Mögliche Liefertermine:</h6>";			
+		}else{
+			deliverynotice="<h6 class='mt-2'>Liefertermin:</h6>";
+		}
+		deliveryDates.forEach(function(item){
+		var date=item.split(':');
+		 // eliverynotice+='<div class="custom-control custom-radio">'+date[0]+'<input type="radio" class="custom-control-input" name="deliveryDates" value="'+date[1]+'" required="required"><label for="'+date[1]+'" class="custom-control-label"></label></div>';	
+		deliverynotice+='<div class="custom-control custom-radio deliveryDates">'
+		deliverynotice+='<input class="custom-control-input" type="radio" id="'+date[1]+'" name="deliveryDates" value="'+date[1]+'">'
+		deliverynotice+=' <label class="custom-control-label" for="'+date[1]+'">'+date[0]+'</label>'
+		deliverynotice+='</div>'		
+		});
 		if(option.attr('data-arrivaltime')!="00:00 Uhr"){
-			deliverynotice+=" um ca."+option.attr('data-arrivaltime');	
+			deliverynotice+="<p>Lieferung um ca."+option.attr('data-arrivaltime')+"</p>";	
 		}
 		$('.deliverynotice').html(deliverynotice);
-		$('#deliveryDate').val(option.attr('data-deliverydate'));
+		initDeliveryDateListener();
 		$('#deliveryRoute').val(option.attr('data-deliveryroute'));
 		$('.deliverynotice').removeClass("d-none");
 	}else{

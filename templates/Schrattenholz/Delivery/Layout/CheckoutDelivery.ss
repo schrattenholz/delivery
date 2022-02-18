@@ -26,7 +26,7 @@
 					  <% loop $DeliverySetup %>
                       <div class="form-group delivery <% if $Top.Basket.DeliveryType.Type="delivery" %><% else %>d-none<% end_if %>">
 					<% if $getCity($Top.CurrentOrderCustomerGroup.ID,$Top.CheckoutAddress.ZIP,$Top.CheckoutAddress.City) %>
-                        <select class="form-control custom-select" name="Delivery" id="Delivery" disabled>
+                        <select class="form-control custom-select" name="Delivery" id="Delivery" <% if $getActiveDeliveryTypes.First.Type=="delivery" %><% else %>disabled="disabled"<% end_if %>>
 				   
 					<% if $Top.Basket.RouteID %>
 					<option value="" data-city="$Top.CheckoutAddress.City" data-zip="$Top.CheckoutAddress.ZIP">$Top.CheckoutAddress.City</option>
@@ -37,7 +37,7 @@
 						  <% if $Routes && $Routes.First.getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %>
 							<option value="$ID" data-city="$Title" 
 							  data-routes="<% loop $Routes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-							  data-deliverydate="<% loop $Routes %>$getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID)<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
+							  data-deliverydate="<% loop $Routes %><% loop $getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %>$DayShort, $Short:$Eng<% if $Last %><% else %>;<% end_if %><% end_loop %><% if $Last %><% else %>,<% end_if %><% end_loop %>" 
 							  data-deliveryroute="<% loop $Routes %>$ID<% if $Last %><% else %>,<% end_if %><% end_loop %>"
 							  data-arrivaltime="<% loop $Routes %>$Up.ArrivalTime<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
 							  data-zip="<% loop $Delivery_ZIPCodes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>"
