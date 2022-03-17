@@ -189,11 +189,12 @@ class Route extends DataObject
 		);
 		$dates=new ArrayList();
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
-			Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
+			//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
 			$firstDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
 			
 		
 			if($firstDate){
+				Injector::inst()->get(LoggerInterface::class)->error("route ersten Termin gefunden=".$dd->Day);
 				//$naechsterTermin=strtotime('next '.$dd->Day,$heute);
 				$dates->push(new ArrayData(
 						array(
@@ -211,7 +212,7 @@ class Route extends DataObject
 				);
 				for($c=1;$c<$deliverySetup->WeeksToShow;$c++){
 					$nextDeliveryDay=strtotime('+'.$c.' week '.$firstDate->Day,$firstDate->DayObject);
-					//Injector::inst()->get(LoggerInterface::class)->error("route nextDeliveryDay=".strftime("%Y.%m.%d",$firstDate->DayObject));
+					Injector::inst()->get(LoggerInterface::class)->error("route nextDeliveryDay=".strftime("%Y.%m.%d",$firstDate->DayObject));
 					$dates->add(new ArrayData(
 						array(
 							"TimeFrom"=>$this->TimeFrom,
@@ -228,7 +229,7 @@ class Route extends DataObject
 				}
 			}
 		}
-		$nextDeliveryDay=$dates->First()->NextDeliveryDay;
+		//$nextDeliveryDay=$dates->First()->NextDeliveryDay;
 		//Findet den naechst moeglichen Liefertag -> $nextDeliveryDay
 		/*foreach($dates->Sort("NextDeliveryDay","ASC") as $dd){
 			if($nextDeliveryDay>$dd->NextDeliveryDay){

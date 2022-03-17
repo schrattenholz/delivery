@@ -37,7 +37,11 @@
 						  <% if $Routes && $Routes.First.getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %>
 							<option value="$ID" data-city="$Title" 
 							  data-routes="<% loop $Routes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-							  data-deliverydate="<% loop $Routes %><% loop $getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %>$DayShort, $Short:$Eng<% if $Last %><% else %>;<% end_if %><% end_loop %><% if $Last %><% else %>,<% end_if %><% end_loop %>" 
+							  data-deliverydate="
+							  <% loop $Routes %>
+								<% loop $getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %><% if $First %><% if not $Up.First %>;<% end_if %><% else %>;<% end_if %>$DayShort, $Short:$Eng
+								<% end_loop %>
+								<% end_loop %>" 
 							  data-deliveryroute="<% loop $Routes %>$ID<% if $Last %><% else %>,<% end_if %><% end_loop %>"
 							  data-arrivaltime="<% loop $Routes %>$Up.ArrivalTime<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
 							  data-zip="<% loop $Delivery_ZIPCodes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>"
