@@ -130,7 +130,7 @@ class DeliveryExtension extends DataExtension {
 		$basket=$this->owner->getBasket();
 		
 		foreach(DeliveryType::get() as $dt){
-			$isActive=$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",1)->First()->IsActive;
+			$isActive=$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->IsActive;
 			
 			if($isActive && floatval($dt->MinOrderValues()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value)<=floatval($basket->TotalPrice()->Price)){
 				$deliveryTypes->push($dt);
