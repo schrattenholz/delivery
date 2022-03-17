@@ -131,7 +131,7 @@ class DeliveryExtension extends DataExtension {
 		
 		foreach(DeliveryType::get() as $dt){
 			$isActive=$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->IsActive;
-			Injector::inst()->get(LoggerInterface::class)->error('getActiveDeliveryTypes ocg Title='.$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Title);
+			Injector::inst()->get(LoggerInterface::class)->error('getActiveDeliveryTypes ocg Title='.$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value);
 			if($isActive && floatval($dt->MinOrderValues()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value)<=floatval($basket->TotalPrice()->Price)){
 				$deliveryTypes->push($dt);
 			}
