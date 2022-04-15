@@ -48,6 +48,46 @@ class DeliveryExtension extends DataExtension {
 			));
 		//return $paginatedProducts;
 	}
+	public function DeliveryDatesForCity($currentOrderCustomerGroupID,$ZIP,$City){
+		$deliverySetup=$this->owner->DeliverySetup();
+		
+		$cityObject=$deliverySetup->getCityNEW($currentOrderCustomerGroupID,$ZIP,$City);
+		
+		$datesForCity =new ArrayList();
+		
+		$datesForCity->Title=$City;
+		$datesForCity->ZIPs=$cityObject->City->Delivery_ZIPCodes();
+		$datesForCity->ID=$cityObject->City->ID;
+		$dates=new ArrayList();
+		//$basket=$this->owner->getBasket();
+	
+		
+		
+		if($cityObject){
+			//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
+			foreach($cityObject->Routes as $route){			
+				$routeObject=Route::get_by_id($route->ID);
+				$data=$routeObject->getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetup->ID);
+				Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity route=".$routeObject->Title."-".$routeObject->ID." city=".$cityObject->City->Title." --- route=".$routeObject->Cities()->where("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime."  cityObject->City->ID=".$cityObject->City->ID );
+			
+
+						Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity  city=".$cityObject->City->Title." ArrivalTime = ".$routeObject->Cities()->filter("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime);
+					
+				$cityOnRoute=$routeObject->Cities()->filter("Delivery_CityID",$cityObject->City->ID)->First();
+				foreach($data as $deliveryDay){
+					$deliveryDay->ArrivalTime=strftime("%H:%M",strtotime($cityOnRoute->ArrivalTime));
+				}
+				if($data){
+					 $dates->merge($data);
+				}
+			}
+			$datesForCity->Dates=$dates->Sort("Eng");
+			return $datesForCity;
+		}else{
+			
+			return false;	
+		}		
+	}
 	public function BasketDeliverySetup($productID=0,$priceBlockElementID=0){
 		if(isset($_GET['v'])){
 			$priceBlockElementID=$_GET['v'];
@@ -71,7 +111,7 @@ class DeliveryExtension extends DataExtension {
 			//return $values;
 		}else{
 			// Die Produktvariante hat kein DeliverySetup, nimm das Default-Setup
-			Injector::inst()->get(LoggerInterface::class)->error("StandrdSetup");
+			Injector::inst()->get(LoggerInterface::class)->error("StandardSetup");
 			$values->DeliverySpecial=false;
 			$values->DeliverySetup=$this->DefaultDeliverySetup();
 			//return $values;

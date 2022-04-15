@@ -15,43 +15,48 @@
                 <div  id="shipping-estimates" data-parent="#order-options">
                   <div class="card-body">
 					<div class="form-group">
-						<select id="deliveryType" class="form-control custom-select" required="required" name="DeliveryType"  onchange="changeDeliveryType();">
+						<select id="deliveryType" class="form-control custom-select" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
 							<% loop $getActiveDeliveryTypes %>
-								<option value="$Type" data-deliveryTypeID="$ID" <% if $Top.Basket.DeliveryType.Type == $Type %>selected="selected"<% end_if %>>$Title</option>
+								<option value="$Type" data-deliveryTypeID="$ID" <% if $Top.Basket.DeliveryType.Type == $Type %>selected<% end_if %>>$Title</option>
 							<% end_loop %>
                         </select>
                         <div class="invalid-feedback">Bitte wählen Sie eine Lieferoption</div>
                       </div>
+					  
+					  
+					  
+					  
 
+						
+						
+						
+						
 					  <% loop $DeliverySetup %>
-                      <div class="form-group delivery <% if $Top.Basket.DeliveryType.Type="delivery" %><% else %>d-none<% end_if %>">
+
+                      <div id="DeliveryContainer" class="form-group delivery <% if $Top.Basket.DeliveryType.Type=="delivery" %><% else %>d-none<% end_if %>">
 					<% if $getCity($Top.CurrentOrderCustomerGroup.ID,$Top.CheckoutAddress.ZIP,$Top.CheckoutAddress.City) %>
-                        <select class="form-control custom-select" name="Delivery" id="Delivery" <% if $getActiveDeliveryTypes.First.Type=="delivery" %><% else %>disabled="disabled"<% end_if %>>
-				   
-					<% if $Top.Basket.RouteID %>
-					<option value="" data-city="$Top.CheckoutAddress.City" data-zip="$Top.CheckoutAddress.ZIP">$Top.CheckoutAddress.City</option>
-					<% else %>
+                        <select class="form-control custom-select" name="Delivery" id="Delivery" <% if $getActiveDeliveryTypes.First.Type=="delivery" %><% else %>disabled<% end_if %>>	   
+
 					<option value="" data-city="" data-zip="">Wählen Sie Ihren Ort</option>
 						<% loop $getCities($Top.CurrentOrderCustomerGroup.ID).Sort('Title') %>
-							$Title
-						  <% if $Routes && $Routes.First.getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %>
-							<option value="$ID" data-city="$Title" 
-							  data-routes="<% loop $Routes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-							  data-deliverydate="
-							  <% loop $Routes %>
-								<% loop $getNextDeliveryDates($Top.CurrentOrderCustomerGroup.ID,$Top.DeliverySetup.ID) %><% if $First %><% if not $Up.First %>;<% end_if %><% else %>;<% end_if %>$DayShort, $Short:$Eng
-								<% end_loop %>
-								<% end_loop %>" 
-							  data-deliveryroute="<% loop $Routes %>$ID<% if $Last %><% else %>,<% end_if %><% end_loop %>"
-							  data-arrivaltime="<% loop $Routes %>$Up.ArrivalTime<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-							  data-zip="<% loop $Delivery_ZIPCodes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>"
-							>
-								$Title
+							
+						  <% loop $Delivery_ZIPCodes %> $Title<% end_loop %>
+						--Top.CheckoutAddress.ZIP,$Title--
+							<% loop $Top.DeliveryDatesForCity($Top.CurrentOrderCustomerGroup.ID, $Delivery_ZIPCodes.First.Title,$Title).Dates %>
+							<% if $First %>
+							<option <% if $Top.Basket.RouteID && $Top.CheckoutAddress.City==$Up.Title %><% loop $Up.ZIPs %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %><% end_if %>
+							value="$Up.ID"
+							data-city="$Up.Title"
+							data-zip="<% loop $Up.ZIPs %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
+							data-deliverydata="<% end_if %><% if $First %><% else %>;<% end_if %>$DayShort, $Short|$Eng|$RouteID|$ArrivalTime<% if $Last %>">
+							$Up.Title			
 							</option>
-									
-						  <% end_if %>
+							<% end_if %>
+							<% end_loop %>
+							
+						
 						<% end_loop %>
-						<% end_if %>	
+							
 						
 						
                         </select>
@@ -64,7 +69,7 @@
                         <input type="hidden" id="deliveryRoute" name="DeliveryRoute" <% if $Top.Basket.RouteID %>value="$Top.Basket.RouteID"<% end_if %> />
                       </div> 
 					 
-						<div class="form-group collection <% if $Top.Basket.DeliveryType.Type="collection" || not $Top.Basket.DeliveryType %><% else %>d-none<% end_if %>">
+						<div id="CollectionContainer" class="form-group collection <% if $Top.Basket.DeliveryType.Type="collection" %><% else %>d-none<% end_if %>">
                         <select class="form-control custom-select" name="CollectionDay" <% if $Top.Basket.DeliveryType.Type =="delivery" %> <% else %>required="required" <% end_if %>>
                           <option value="" data-day="" data-timefrom="" data-timeto="">Wählen Sie Ihren Abholtag</option>
                           <% loop $getNextCollectionDays($Top.CurrentOrderCustomerGroup.ID,$ID) %>
@@ -168,10 +173,15 @@
 <script>
 
 function changeDeliveryType(){
-	var deliveryType=jQuery("#deliveryType").val() ;
-	if(deliveryType=="delivery"){
+	var option=$("#deliveryType").children("option:selected");
+	if(option.val()=="delivery"){
+		$('#DeliveryContainer').removeClass("d-none");
+		$('#CollectionContainer').addClass("d-none");
 		$("#delivery_sepa").attr("required","required");
 	}else{
+		$(".deliverynotice").html("");
+		$('#CollectionContainer').removeClass("d-none");
+		$('#DeliveryContainer').addClass("d-none");
 		$("#delivery_sepa").removeAttr("required");
 	}
 	var selectedDeliveryType=jQuery('#deliveryType option[value=' + jQuery('#deliveryType').val() + ']').attr("data-deliveryTypeID");

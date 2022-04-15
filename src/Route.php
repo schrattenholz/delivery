@@ -52,7 +52,8 @@ class Route extends DataObject
 		'Title'=>'Varchar(255)',
 		'SortOrder'=>'Int',
 		'OrderDeadline'=>'Int',
-		'OrderDeadlineTime'=>'Time'
+		'OrderDeadlineTime'=>'Time',
+		'Interval'=>'Enum("even,odd,weekly","weekly")'
 	);
 	private static $summary_fields = [
 		'Title' => 'Title'
@@ -74,41 +75,19 @@ class Route extends DataObject
 	private static $has_one=[
 		'DeliveryType'=>DeliveryType::class
 	];
-	public function onAfterWrite(){
-		parent::onAfterWrite();
-		$update = SQLUpdate::create('Delivery_Route')->addWhere(['ID' => $this->ID]);
-		$update->assign('DeliveryTypeID', DeliveryType::get()->filter("Type","delivery")->First()->ID);
-		$update->execute();
-	}
-		
-		public function getZIPs($cityID){
-			$sqlQuery = new SQLSelect();
-			$sqlQuery->setFrom('Delivery_City_Delivery_ZIPCodes');
-			$sqlQuery->selectField('Delivery_ZIPCodeID', 'ZIPID');
-			$sqlQuery->selectField('Delivery_CityID', 'CityID');
-			$sqlQuery->addWhere(['Delivery_CityID = ?' => $cityID]);
-			// $sqlQuery->setOrderBy(...);
-			// $sqlQuery->setGroupBy(...);
-			// $sqlQuery->setHaving(...);
-			// $sqlQuery->setLimit(...);
-			// $sqlQuery->setDistinct(true);
 
-			// Get the raw SQL (optional) and parameters
-			//$rawSQL = $sqlQuery->sql($parameters);
-
-			// Execute and return a Query object
-			$result = $sqlQuery->execute();
-
-			// Iterate over results
-			$zipIDs=[];
-			foreach($result as $row) {
-				array_push($zipIDs,$row['ZIPID']);
-			}
-			return $zipIDs;
-		}
  	public function getCMSFields()
 	{
 		$fields=FieldList::create(TabSet::create('Root'));
+		$intervalValues=singleton(Route::class)->dbObject('Interval')->enumValues();
+		//ENUM-Values uebersetzen
+		foreach($intervalValues as $v){
+			$intervalValues[$v]=_t('Cycles.'.$v,$v);
+			
+		}
+		$interval=DropdownField::create( 'Interval', 'Intervall', $intervalValues);
+		
+		
 	//Cities
 		$gridFieldConfig=GridFieldConfig::create()
 			->addComponent($autocompleter=new GridFieldAddExistingAutocompleter())
@@ -149,7 +128,10 @@ class Route extends DataObject
 		// END Cities
 		
 		$config = GridFieldConfig_RecordEditor::create();
-		
+		$dataColumns=$config->getComponentByType(GridFieldDataColumns::class)->setDisplayFields(
+        array(
+            'DayTranslated'   => 'Tag'
+		));
 		$deliveryDate = new GridField('DeliveryDays', 'Liefertage', $this->DeliveryDays());
 		$deliveryDate->setConfig($config);
 		
@@ -161,6 +143,7 @@ class Route extends DataObject
 			TextField::create('Title','Title'),
 			//$orderDeadline,
 			//$orderDeadlineTime,
+			$interval,
 			$deliveryDate,
 			$cities,
 			
@@ -168,8 +151,44 @@ class Route extends DataObject
 		$this->extend('updateCMSFields', $fields);
 		return $fields;
 	}	
+	public function onAfterWrite(){
+		parent::onAfterWrite();
+		$update = SQLUpdate::create('Delivery_Route')->addWhere(['ID' => $this->ID]);
+		$update->assign('DeliveryTypeID', DeliveryType::get()->filter("Type","delivery")->First()->ID);
+		$update->execute();
+	}
+		
+		public function getZIPs($cityID){
+			$sqlQuery = new SQLSelect();
+			$sqlQuery->setFrom('Delivery_City_Delivery_ZIPCodes');
+			$sqlQuery->selectField('Delivery_ZIPCodeID', 'ZIPID');
+			$sqlQuery->selectField('Delivery_CityID', 'CityID');
+			$sqlQuery->addWhere(['Delivery_CityID = ?' => $cityID]);
+			// $sqlQuery->setOrderBy(...);
+			// $sqlQuery->setGroupBy(...);
+			// $sqlQuery->setHaving(...);
+			// $sqlQuery->setLimit(...);
+			// $sqlQuery->setDistinct(true);
+
+			// Get the raw SQL (optional) and parameters
+			//$rawSQL = $sqlQuery->sql($parameters);
+
+			// Execute and return a Query object
+			$result = $sqlQuery->execute();
+
+			// Iterate over results
+			$zipIDs=[];
+			foreach($result as $row) {
+				array_push($zipIDs,$row['ZIPID']);
+			}
+			if(count($zipIDs)>0){
+				return $zipIDs;
+			}else{
+				return 0;				
+			}
+		}
 	public function getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetupID){
-		Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
+		//Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		$deliveryDays=[];
@@ -188,21 +207,25 @@ class Route extends DataObject
 			'eee'
 		);
 		$dates=new ArrayList();
+		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
 			//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
 			$firstDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
 			
 		
 			if($firstDate){
-				Injector::inst()->get(LoggerInterface::class)->error("route ersten Termin gefunden=".$dd->Day);
+				//Injector::inst()->get(LoggerInterface::class)->error("route ersten Termin RouteID".$this->ID);
 				//$naechsterTermin=strtotime('next '.$dd->Day,$heute);
 				$dates->push(new ArrayData(
 						array(
 							"ID"=>$dd->ID,
-							"NextDeliveryDay"=>$firstDate->DayObject,
+							"RouteID"=>$this->ID,
+							"Route"=>$this,
+							"NextDeliveryDay"=>$firstDate->DayObject,							
 							"TimeFrom"=>$dd->TimeFrom,
 							"TimeTo"=>$dd->TimeTo,
-							"Eng"=>strftime("%Y.%m.%d",$firstDate->DayObject),
+							"EngNum"=>strftime("%Y.%m.d",$firstDate->DayObject),
+							"Eng"=>strftime("%Y-%m-%d",$firstDate->DayObject),
 							"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
 							"Short"=>strftime("%d.%m",$firstDate->DayObject),
 							"DayShort"=>$dayFormatter->format($firstDate->DayObject),
@@ -210,14 +233,27 @@ class Route extends DataObject
 						)
 					)
 				);
-				for($c=1;$c<$deliverySetup->WeeksToShow;$c++){
-					$nextDeliveryDay=strtotime('+'.$c.' week '.$firstDate->Day,$firstDate->DayObject);
-					Injector::inst()->get(LoggerInterface::class)->error("route nextDeliveryDay=".strftime("%Y.%m.%d",$firstDate->DayObject));
+				if($this->Interval!="weekly"){
+					$interval=2;
+					//$weeksToShow=($deliverySetup->WeeksToShow*2);
+				}else{
+					$interval=1;
+					
+				}
+				$weeksToShow=$deliverySetup->WeeksToShow;
+				for($c=1;$c<$weeksToShow;$c++){
+					$nextDeliveryDay=strtotime('+'.($c*$interval).' week '.$firstDate->Day,$firstDate->DayObject);
+					//Injector::inst()->get(LoggerInterface::class)->error("route nextDeliveryDay=".strftime("%Y.%m.%d",$firstDate->DayObject));
 					$dates->add(new ArrayData(
 						array(
+							"ID"=>$dd->ID,
+							"RouteID"=>$this->ID,
+							"NextDeliveryDay"=>$nextDeliveryDay,
+							"Route"=>$this,							
 							"TimeFrom"=>$this->TimeFrom,
 							"TimeTo"=>$this->TimeTo,
-							"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
+							"Eng"=>strftime("%Y-%m-%d",$nextDeliveryDay),
+							"EngNum"=>strftime("%Y.%m.d",$firstDate->DayObject),
 							"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
 							"Short"=>strftime("%d.%m",$nextDeliveryDay),
 							"DayShort"=>$dayFormatter->format($nextDeliveryDay),
@@ -240,7 +276,12 @@ class Route extends DataObject
 			}
 		}*/
 		//return strftime("%d.%m.%Y",$nextDeliveryDay);
-		return $dates->Sort("Eng","ASC");
+		/*foreach($dates as $date){
+			
+			Injector::inst()->get(LoggerInterface::class)->error("route return dates=".$date->RouteID);
+		}*/
+		//Injector::inst()->get(LoggerInterface::class)->error("route ------ return dates= count=".count($dates));
+		return $dates->Sort("EngNum","ASC");
 	}
 
 }

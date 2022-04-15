@@ -1,4 +1,8 @@
 de:
+  Cycles:
+    even: 'gerade Woche'
+    odd: 'ungerade Woche'
+    weekly: 'wöchentlich'
   Day:
     monday: 'Montag'
     tuesday: 'Dienstag'

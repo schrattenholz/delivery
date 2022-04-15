@@ -18,6 +18,7 @@ use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\ORM\ArrayList;
+use SilverStripe\View\ArrayData;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\FormAction;
 use Kinglozzer\MultiSelectField\Forms\MultiSelectField;
@@ -25,6 +26,7 @@ use SilverStripe\ORM\Queries\SQLUpdate;
 use SilverStripe\Forms\GridField\GridFieldDetailForm_ItemRequest;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\ValidationException;
+use SilverStripe\ORM\Queries\SQLSelect;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Security\Permission;
 class DeliverySetup extends DataObject
@@ -65,13 +67,13 @@ class DeliverySetup extends DataObject
 		
 		$deliveryType=DeliveryType::get()->filter("Type",$type)->First();
 		$group=$deliveryType->OrderCustomerGroups()->filter(["OrderCustomerGroupID"=>$ocgID,"DeliveryTypeID"=>$deliveryType->ID])->First();
-		Injector::inst()->get(LoggerInterface::class)->error("deliveryType->ID=".$deliveryType->ID."ocgID=".$ocgID. " group minordervlue=".$group->MinOrderValue);
+		//Injector::inst()->get(LoggerInterface::class)->error("deliveryType->ID=".$deliveryType->ID."ocgID=".$ocgID. " group minordervlue=".$group->MinOrderValue);
 		return $group->MinOrderValue;
 		
 		
 	}
 	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID){
-		Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays");
+		//Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays");
 		$sortedCollectionDays=new ArrayList();
 		foreach($this->CollectionDays() as $cD){
 			
@@ -95,7 +97,7 @@ class DeliverySetup extends DataObject
 						"ID"=>$cD->ID),
 						
 					);
-					Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays ".$nextDate->Eng);
+					//Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays ".$nextDate->Eng);
 				}
 			}
 			
@@ -159,7 +161,15 @@ class DeliverySetup extends DataObject
 		// DeliveryDayID + RouteID
 		if($this->Route_DeliveryDays()){
 			$routes=[];
-			foreach($this->Route_DeliveryDays() as $dd){
+			$sqlQuery = new SQLSelect();
+			$sqlQuery->setFrom('Delivery_Setup_Route_DeliveryDays');
+			$sqlQuery->selectField('DeliveryDaysID', 'DeliveryDaysID');
+			$sqlQuery->addWhere(['Delivery_SetupID = ?' => $this->ID]);
+			$result = $sqlQuery->execute();
+
+			$route_deliveryDays=$this->Route_DeliveryDays()->innerJoin("Delivery_Setup_Route_DeliveryDays", "\"RDD\".\"DeliveryDaysID\" = \"DeliveryDays\".\"ID\"", "RDD")->where("Delivery_Setup_Route_DeliveryDays.Delivery_SetupID",3);
+			foreach($route_deliveryDays as $dd){
+				//Injector::inst()->get(LoggerInterface::class)->error("getCityNEW route=".$dd->Delivery_SetupID);
 				array_push($routes,$dd->RouteID);
 			}
 			return array_unique($routes);
@@ -167,6 +177,52 @@ class DeliverySetup extends DataObject
 			//Es sind keine Routentage hinterlegt.
 			return false;
 		}
+	}
+	public function getCityNEW($currentOrderCustomerGroupID,$ZIP,$City){
+		$activeRoutes=$this->getActiveRoutes();
+		//var_dump($activeRoutes);
+		foreach($activeRoutes as $r){
+			
+		}
+		// Object, das den Ort und alle Routen beinhaltet, auf denen der Ort angefahren wird
+		$cityAndRoutes=new ArrayList();
+		$routes=[];
+		$routesArrayList=new ArrayList();
+		
+		if($activeRoutes){
+			
+			$cities=ArrayList::create();
+			foreach($this->Routes()->filter('ID',$activeRoutes) as $r){
+				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die DeliveryDays der Route, die im Liefersetup aktiviert sind
+				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
+				// Sucht den verfuegbaren Orte auf der Route
+				foreach($r->Cities() as $c){
+					if($c->Title==$City && $c->hasZIP($ZIP)){
+						$c->DeliveryDate=$nextDeliveryDate;
+						$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
+						$cityAndRoutes->City=$c;
+						//Injector::inst()->get(LoggerInterface::class)->error("getCityNEW  c->Title=  ".$c->Title);
+						array_push($routes,$r->ID);
+						//return $c;
+					}
+				}
+			}
+			if($cityAndRoutes->City){				
+				
+				foreach(array_unique($routes) as $route){
+					$routesArrayList->push(new ArrayData(array('ID'=>$route)));
+					//Injector::inst()->get(LoggerInterface::class)->error("getCityNEW  route->ID=  ".$route);
+				}
+				$cityAndRoutes->Routes=$routesArrayList;
+				return $cityAndRoutes;
+			}
+			// Es wurden kein Ort gefunden
+			return false;
+		}else{
+			// Es wurden keine Routen gefunden
+			return false;
+		}
+		return false;
 	}
 	public function getCity($currentOrderCustomerGroupID,$ZIP,$City){
 		$routes=$this->getActiveRoutes();
@@ -178,7 +234,7 @@ class DeliverySetup extends DataObject
 				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
 								
 				
-				// Sucht den verfuebaren Orte auf der Route
+				// Sucht den verfuegbaren Orte auf der Route
 				foreach($r->Cities() as $c){
 					if($c->Title==$City && $c->hasZIP($ZIP)){
 						$c->DeliveryDate=$nextDeliveryDate;
@@ -201,7 +257,7 @@ class DeliverySetup extends DataObject
 		if($routes){
 			$cities=ArrayList::create();
 			foreach($this->Routes()->filter('ID',$routes) as $r){
-				
+				Injector::inst()->get(LoggerInterface::class)->error("getCities route=".$r->Title." - ".$r->ID);
 				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die Liefertage der Route, die im Liefersetup aktiviert sind (Route_DeliveryDays)
 				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
 				

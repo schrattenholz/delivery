@@ -49,7 +49,7 @@ function loadZips(zipFragment){
 					},				
 				close: function (event, ui) {
 						//event.preventDefault();
-						alert("close");
+						//alert("close");
 						loadCitiesByZIPID(ui.item.id);
 						//return false;
 					}
@@ -170,6 +170,7 @@ jQuery( document ).ready(function() {
 	
 	
 	if(jQuery('#checkoutDelivery').length>0){
+		changeDeliveryType();
 		jQuery('#checkoutDelivery').submit(function (event) {
 				event.preventDefault();
 			if (jQuery('#checkoutDelivery')[0].checkValidity() === false) {
@@ -232,6 +233,9 @@ jQuery( document ).ready(function() {
 				console.log("deliveryday");
 				setDelivery();
 			});
+			if($( ".delivery .custom-select option:selected" )){
+				setDelivery();
+			}
 		}
 		if($('.collection .custom-select').length>0){
 			$('.collection .custom-select').on('change',function(){
@@ -275,41 +279,59 @@ function searchZIP(zip){
 function initDeliveryDateListener(){
 	$('.deliveryDates input').each(function(){
 		$(this).on("change", function(){
-			alert($(this).val());
 			setDeliveryDate($(this).val());
+			setDeliveryRoute($(this).attr("data-routeid"));
 		});
 	});
 }
 function setDeliveryDate(date){
 	$('#deliveryDate').val(date);
 }
+function setDeliveryRoute(route){
+	$('#deliveryRoute').val(route);
+}
 function setDelivery(){
 	var select=$('.delivery .custom-select');
 	var option=$('.delivery .custom-select').children("option:selected");
-	//console.log("ddate="+option.attr('data-deliverydate'));
-	var deliveryDates=option.attr('data-deliverydate').split(';');
+	
+	var deliveryData=option.attr('data-deliverydata').split(';');
 	if(select.val()){
+		
 		var deliverynotice;
-		if(deliveryDates.length>1){
+		if(deliveryData.length>1){
 			deliverynotice="<h6 class='mt-2'>Mögliche Liefertermine:</h6>";			
 		}else{
 			deliverynotice="<h6 class='mt-2'>Liefertermin:</h6>";
 		}
-		deliveryDates.forEach(function(item){
-		var date=item.split(':');
-		 // eliverynotice+='<div class="custom-control custom-radio">'+date[0]+'<input type="radio" class="custom-control-input" name="deliveryDates" value="'+date[1]+'" required="required"><label for="'+date[1]+'" class="custom-control-label"></label></div>';	
-		deliverynotice+='<div class="custom-control custom-radio deliveryDates">'
-		deliverynotice+='<input class="custom-control-input" type="radio" id="'+date[1]+'" name="deliveryDates" value="'+date[1]+'">'
-		deliverynotice+=' <label class="custom-control-label" for="'+date[1]+'">'+date[0]+'</label>'
-		deliverynotice+='</div>'		
+		deliveryData.forEach(function(item){
+			var date=item.split('|');
+			deliverynotice+='<div class="custom-control custom-radio deliveryDates">'
+			deliverynotice+='<input class="custom-control-input" type="radio" data-routeid="'+date[2]+'" id="'+date[1]+'" name="DeliveryDateRadioGroup" value="'+date[1]+'"';
+			
+			if($('#deliveryRoute').val()==date[2] && $('#deliveryDate').val()==date[1]){
+				//select the input field
+				
+				deliverynotice+=' checked="checked" ';
+			}
+			deliverynotice+='>';
+			
+			if(date[3].trim()!="00:00"){
+				deliverynotice+=' <label class="custom-control-label" for="'+date[1]+'">'+date[0]+", ca. "+date[3]+' Uhr</label>';
+			}else{
+				deliverynotice+=' <label class="custom-control-label" for="'+date[1]+'">'+date[0]+'</label>';
+				
+			}
+			deliverynotice+='</div>';
+			//$('#deliveryRoute').val(date[2]);
+			$('.deliverynotice').removeClass("d-none");		
 		});
-		if(option.attr('data-arrivaltime')!="00:00 Uhr"){
+		/*if(date[3]!="00:00"){
 			deliverynotice+="<p>Lieferung um ca."+option.attr('data-arrivaltime')+"</p>";	
-		}
+		}*/
 		$('.deliverynotice').html(deliverynotice);
+		
 		initDeliveryDateListener();
-		$('#deliveryRoute').val(option.attr('data-deliveryroute'));
-		$('.deliverynotice').removeClass("d-none");
+		
 	}else{
 		$('.deliverynotice').addClass("d-none");
 	}
