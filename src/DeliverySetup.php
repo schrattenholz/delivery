@@ -11,6 +11,7 @@ use Silverstripe\Forms\NumericField;
 use Silverstripe\Forms\ListboxField;
 use Silverstripe\Forms\CheckboxField;
 use Silverstripe\Forms\DropdownField;
+use Silverstripe\Forms\HTMLEditor\HTMLEditorField;
 use Silverstripe\Forms\HiddenField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TabSet;
@@ -42,8 +43,10 @@ class DeliverySetup extends DataObject
 		'IsPrimary'=>'Boolean',
 		'DeliveryStart'=>'Date',
 		'NoNextDeliveryDate'=>'Boolean',
+		'NoDates'=>'Boolean',
 		'EnrollDeliverySetup'=>'Boolean',
-		'WeeksToShow'=>'Enum("1,2,3,4,5,6,7,8","1")'
+		'WeeksToShow'=>'Enum("1,2,3,4,5,6,7,8","1")',
+		'ContentProductShippingInfo'=>'HTMLText'
 	);
 	private static $allowed_actions=[
 		"enrollDeliverySetup"
@@ -132,6 +135,10 @@ class DeliverySetup extends DataObject
 		
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate",utf8_encode("Lieferung nur einmalig möglich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nächsten Woche angezeigt.)")));
 		
+		$fields->addFieldToTab('Root.Main',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));
+		
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates",utf8_encode("Es werden nur die Liefermöglchkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)")));
+		
 		// Als Standard festlegen
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsDefault",utf8_encode("Standard-Setup   (Dieses Liefer-Setup wird als Standard verwendet, wenn im Produkt im Warenkorb kein spezielles Liefer-Setup ausgewählt wurde.)")));
 		// Als Haupt-Setup festlegen festlegen
@@ -194,12 +201,12 @@ class DeliverySetup extends DataObject
 			$cities=ArrayList::create();
 			foreach($this->Routes()->filter('ID',$activeRoutes) as $r){
 				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die DeliveryDays der Route, die im Liefersetup aktiviert sind
-				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
+				//$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
 				// Sucht den verfuegbaren Orte auf der Route
 				foreach($r->Cities() as $c){
 					if($c->Title==$City && $c->hasZIP($ZIP)){
-						$c->DeliveryDate=$nextDeliveryDate;
-						$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
+						//$c->DeliveryDate=$nextDeliveryDate;
+						//$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
 						$cityAndRoutes->City=$c;
 						//Injector::inst()->get(LoggerInterface::class)->error("getCityNEW  c->Title=  ".$c->Title);
 						array_push($routes,$r->ID);
@@ -259,12 +266,12 @@ class DeliverySetup extends DataObject
 			foreach($this->Routes()->filter('ID',$routes) as $r){
 				Injector::inst()->get(LoggerInterface::class)->error("getCities route=".$r->Title." - ".$r->ID);
 				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die Liefertage der Route, die im Liefersetup aktiviert sind (Route_DeliveryDays)
-				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
+				//$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
 				
 				// Stellt alle verfuebaren Orte auf der Route zusammen
 				foreach($r->Cities() as $c){
-					$c->DeliveryDate=$nextDeliveryDate;
-					$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
+					//$c->DeliveryDate=$nextDeliveryDate;
+					//$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
 					$cities->push($c);
 				}
 			}

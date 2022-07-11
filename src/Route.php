@@ -188,7 +188,7 @@ class Route extends DataObject
 			}
 		}
 	public function getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetupID){
-		//Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
+		Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		$deliveryDays=[];
@@ -209,8 +209,8 @@ class Route extends DataObject
 		$dates=new ArrayList();
 		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
-			//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
-			$firstDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+			Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
+			$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
 			
 		
 			if($firstDate){
@@ -221,15 +221,15 @@ class Route extends DataObject
 							"ID"=>$dd->ID,
 							"RouteID"=>$this->ID,
 							"Route"=>$this,
-							"NextDeliveryDay"=>$firstDate->DayObject,							
+							"NextDeliveryDay"=>$firstDate,							
 							"TimeFrom"=>$dd->TimeFrom,
 							"TimeTo"=>$dd->TimeTo,
-							"EngNum"=>strftime("%Y.%m.d",$firstDate->DayObject),
-							"Eng"=>strftime("%Y-%m-%d",$firstDate->DayObject),
-							"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
-							"Short"=>strftime("%d.%m",$firstDate->DayObject),
-							"DayShort"=>$dayFormatter->format($firstDate->DayObject),
-							"DayObject"=>$firstDate->DayObject
+							"EngNum"=>$firstDate->format("Y.m.d"),
+							"Eng"=>$firstDate->format("Y-m-d"),
+							"Full"=>$firstDate->format("d.m.Y"),
+							"Short"=>$firstDate->format("d.m"),
+							"DayShort"=>$dayFormatter->format($firstDate),
+							"DayObject"=>$firstDate
 						)
 					)
 				);
@@ -242,20 +242,21 @@ class Route extends DataObject
 				}
 				$weeksToShow=$deliverySetup->WeeksToShow;
 				for($c=1;$c<$weeksToShow;$c++){
-					$nextDeliveryDay=strtotime('+'.($c*$interval).' week '.$firstDate->Day,$firstDate->DayObject);
-					//Injector::inst()->get(LoggerInterface::class)->error("route nextDeliveryDay=".strftime("%Y.%m.%d",$firstDate->DayObject));
+					$nextDeliveryDay=$this->genDateTime(strtotime('+'.($c*$interval).' week '.$firstDate->format("l"),$firstDate->getTimestamp()));
+					Injector::inst()->get(LoggerInterface::class)->error($firstDate->format("l")." route nextDeliveryDay=".$nextDeliveryDay->format("Y.m.d"));
 					$dates->add(new ArrayData(
 						array(
 							"ID"=>$dd->ID,
 							"RouteID"=>$this->ID,
 							"NextDeliveryDay"=>$nextDeliveryDay,
 							"Route"=>$this,							
-							"TimeFrom"=>$this->TimeFrom,
-							"TimeTo"=>$this->TimeTo,
-							"Eng"=>strftime("%Y-%m-%d",$nextDeliveryDay),
-							"EngNum"=>strftime("%Y.%m.d",$firstDate->DayObject),
-							"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
-							"Short"=>strftime("%d.%m",$nextDeliveryDay),
+							"NextDeliveryDay"=>$nextDeliveryDay,							
+							"TimeFrom"=>$dd->TimeFrom,
+							"TimeTo"=>$dd->TimeTo,
+							"EngNum"=>$nextDeliveryDay->format("Y.m.d"),
+							"Eng"=>$nextDeliveryDay->format("Y-m-d"),
+							"Full"=>$nextDeliveryDay->format("d.m.Y"),
+							"Short"=>$nextDeliveryDay->format("d.m"),
 							"DayShort"=>$dayFormatter->format($nextDeliveryDay),
 							"DayObject"=>$nextDeliveryDay
 							)
@@ -265,24 +266,11 @@ class Route extends DataObject
 				}
 			}
 		}
-		//$nextDeliveryDay=$dates->First()->NextDeliveryDay;
-		//Findet den naechst moeglichen Liefertag -> $nextDeliveryDay
-		/*foreach($dates->Sort("NextDeliveryDay","ASC") as $dd){
-			if($nextDeliveryDay>$dd->NextDeliveryDay){
-				$nextDeliveryDay=$dd->NextDeliveryDay;
-				if(strtotime('-'.$dd->Deadline.' day', $nextDeliveryDay)>=strtotime($heute)){
-					return strftime("%d.%m.%Y",$nextDeliveryDay);
-				}
-			}
-		}*/
-		//return strftime("%d.%m.%Y",$nextDeliveryDay);
-		/*foreach($dates as $date){
-			
-			Injector::inst()->get(LoggerInterface::class)->error("route return dates=".$date->RouteID);
-		}*/
-		//Injector::inst()->get(LoggerInterface::class)->error("route ------ return dates= count=".count($dates));
 		return $dates->Sort("EngNum","ASC");
 	}
-
+	public function genDateTime($timestamp){
+		$dateTime=new \DateTime("now",new \DateTimeZone("Europe/Berlin"));
+		return $dateTime->setTimestamp($timestamp);
+	}
 }
 ?>

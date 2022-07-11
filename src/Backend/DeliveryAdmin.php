@@ -21,6 +21,7 @@ class DeliveryAdmin extends ModelAdmin
     private static $url_segment = 'lieferung';
 
     private static $managed_models = [
+		DeliveryConfig::class,
 		DeliverySetup::class,
 		Route::class,
 		CollectionDay::class,

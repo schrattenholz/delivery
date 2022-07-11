@@ -39,12 +39,10 @@
 
 					<option value="" data-city="" data-zip="">Wählen Sie Ihren Ort</option>
 						<% loop $getCities($Top.CurrentOrderCustomerGroup.ID).Sort('Title') %>
-							
-						  <% loop $Delivery_ZIPCodes %> $Title<% end_loop %>
-						--Top.CheckoutAddress.ZIP,$Title--
 							<% loop $Top.DeliveryDatesForCity($Top.CurrentOrderCustomerGroup.ID, $Delivery_ZIPCodes.First.Title,$Title).Dates %>
 							<% if $First %>
-							<option <% if $Top.Basket.RouteID && $Top.CheckoutAddress.City==$Up.Title %><% loop $Up.ZIPs %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %><% end_if %>
+							<% loop $Up.ZIPs %>$Title - $Top.CheckoutAddress.ZIP<% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %>
+							<option <% loop $Up.ZIPs %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %>
 							value="$Up.ID"
 							data-city="$Up.Title"
 							data-zip="<% loop $Up.ZIPs %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
@@ -220,6 +218,7 @@ function loginMember(){
 
 }
 function checkoutDelivery(nextLink,pageLink){
+alert("checkout");
 	var nextLink='$LinkCheckoutSummary';
 	var pageLink='$Link';
 	setCollectionDate();

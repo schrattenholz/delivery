@@ -172,10 +172,12 @@ jQuery( document ).ready(function() {
 	if(jQuery('#checkoutDelivery').length>0){
 		changeDeliveryType();
 		jQuery('#checkoutDelivery').submit(function (event) {
+			alert("checkoutDelivery");
 				event.preventDefault();
 			if (jQuery('#checkoutDelivery')[0].checkValidity() === false) {
 				event.stopPropagation();
 			} else {
+				
 			checkoutDelivery()
 			}
 			jQuery('#checkoutDelivery').addClass('was-validated');

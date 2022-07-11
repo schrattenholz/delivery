@@ -133,24 +133,35 @@ class DeliveryDay extends DataObject
 	// Gibt eine spanne von Lieferterminen zurueck
 	public function getNextDates($currentOrderCustomerGroupID,$deliverySetupID,$weeks){
 		$dates=new ArrayList();
-		$firstDate=$this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
-		if($firstDate){
-			
+		$firstDate=$this->genDateTime($this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
+		//Injector::inst()->get(LoggerInterface::class)->error("firstDate=".$firstDate->format('Y.m.d'));
+		if($firstDate){			
 			$dates->add(
 						array(
 						"TimeFrom"=>$this->TimeFrom,
 						"TimeTo"=>$this->TimeTo,
-						"Eng"=>strftime("%Y-%m-%d",$firstDate->DayObject),
-						"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
-						"Short"=>strftime("%d.%m",$firstDate->DayObject),
-						"DayObject"=>$firstDate->DayObject
+						"Eng"=>$firstDate->format("%Y-%m-%d"),
+						"Full"=>$firstDate->format("%d.%m.%Y"),
+						"Short"=>$firstDate->format("%d.%m"),
+						"Timestamp"=>$firstDate->getTimestamp()
 						)
 					);
 			for($c=1;$c<$weeks;$c++){
 				
 				
-				$nextDeliveryDay=strtotime('+'.$c.' week '.strtotime($firstDate->DayObject),$firstDate->DayObject);
-				$dates->add(new ArrayData(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo,"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay),"DayObject"=>$nextDeliveryDay)));
+				$nextDeliveryDay=$this->genDateTime(strtotime('+'.$c.' week '.strtotime($firstDate->getTimestamp()),$firstDate->getTimestamp()));
+				$dates->add(
+					new ArrayData(
+						array(
+							"TimeFrom"=>$this->TimeFrom,
+							"TimeTo"=>$this->TimeTo,
+							"Eng"=>$nextDeliveryDay->format("%Y.%m.%d"),
+							"Full"=>$nextDeliveryDay->format("%d.%m.%Y"),
+							"Short"=>$nextDeliveryDay->format("%d.%m"),
+							"Timestamp"=>$nextDeliveryDay->getTimestamp()
+							)
+						)
+					);
 				
 			}
 			return $dates;
@@ -175,7 +186,10 @@ class DeliveryDay extends DataObject
 			return false;
 		}
 	}
-	
+	public function genDateTime($timestamp){
+		$dateTime=new \DateTime("now",new \DateTimeZone("Europe/Berlin"));
+		return $dateTime->setTimestamp($timestamp);
+	}
 	// Gibt den nachst möeglichen Liefertermin zurueck. Fuer Es wird nur ein Liefertermin automatisch angezeigt
 	public function getNextDate($currentOrderCustomerGroupID,$deliverySetupID){
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
@@ -186,44 +200,51 @@ class DeliveryDay extends DataObject
 		
 		if($deadline->Active){
 			if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
-				$liefertermin=strtotime($this->owner->Day,$deliveryStart);		
+				$liefertermin=$this->genDateTime(strtotime($this->owner->Day,$deliveryStart));		
 			}else{
-				$liefertermin=strtotime($this->owner->Day);
+				$liefertermin=$this->genDateTime(strtotime($this->owner->Day));
 			}
-			if(!$this->WeekIsInActiveInterval($this->Route->Interval,strftime("%Y-%m-%d",$liefertermin))){	
+			//Injector::inst()->get(LoggerInterface::class)->error("original Termin ". $liefertermin->format("Y.m.d"));
+			if(!$this->WeekIsInActiveInterval($this->Route->Interval,$liefertermin->format("Y-m-d"))){	
 				// Wenn das Interval (gerade/ungerade) nicht passt, nimmm die naechste Woche
-				$liefertermin=strtotime("next ".$this->owner->Day, $liefertermin);			
+				//Injector::inst()->get(LoggerInterface::class)->error("nehste Woche wegen Interval ". $liefertermin->format("Y.m.d"));
+				$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));			
 			}
-			$bestellschluss=strtotime('-'.$deadline->DaysBefore.' day', $liefertermin);
-			if($bestellschluss>=$heute){
-				//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss in der zukunft". strftime("%Y-%m-%d",strtotime($this->owner->Day,$liefertermin)));
-				if(!$this->WeekIsInActiveInterval($this->Route->Interval,strftime("%Y-%m-%d",strtotime($this->owner->Day,$liefertermin)))){	
+			$bestellschluss=$this->genDateTime(strtotime('-'.$deadline->DaysBefore.' day', $liefertermin->getTimestamp()));
+			//Injector::inst()->get(LoggerInterface::class)->error("Bestellschluss ". $bestellschluss->getTimestamp()." heute=".$heute);
+			if($bestellschluss->getTimestamp()>=$heute){
+				//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss in der zukunft ". $liefertermin->format("Y.m.d"));
+				//$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));	
+				if(!$this->WeekIsInActiveInterval($this->Route->Interval,$liefertermin->format("Y-m-d"))){	
 					//Injector::inst()->get(LoggerInterface::class)->error("Woche ist nicht im interval,... erhoehen");			
-					$liefertermin=strtotime("next ".$this->owner->Day, $liefertermin);			
+					$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));			
 				}
-				$nextDeliveryDay=strtotime($this->owner->Day,$liefertermin);
+				$nextDeliveryDay=$this->genDateTime(strtotime($this->owner->Day,$liefertermin->getTimestamp()))->getTimestamp();
 			}else if (!$deliverySetup->NoNextDeliveryDate){
-				// der nächste Abholtag ist nach dem Bestellschluss, es muss der uebernächste Tag genommen werden
-				//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; zeige den naechstten abholtag an--   ".strftime("%Y-%m-%d",$liefertermin));	
-				if(!$this->WeekIsInActiveInterval($this->Route->Interval,strftime("%Y-%m-%d",strtotime("next ".$this->owner->Day, $liefertermin)))){		
+				// der nächste Liefertag ist nach dem Bestellschluss, es muss der uebernächste Tag genommen werden
+				//Injector::inst()->get(LoggerInterface::class)->error("naechstten Liefertag vorher   ".$liefertermin->format("Y.m.d"));	
+				$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));
+				if(!$this->WeekIsInActiveInterval($this->Route->Interval,$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()))->format('Y-m-d'))){		
 			
-					$liefertermin=strtotime("next ".$this->owner->Day, $liefertermin);			
+					$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));			
 				}
-				$nextDeliveryDay=strtotime("next ".$this->owner->Day, $liefertermin);
+				//Injector::inst()->get(LoggerInterface::class)->error("naechstten Liefertag erhoeht   ".$liefertermin->format("Y.m.d"));	
+				$nextDeliveryDay=$liefertermin->getTimestamp();
 			}else{
-				//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; es gibt keinen weiteren");
-				//Da der erste Abholtag im Datumsbereich (deliveryStart) schon vorueber ist, 
-				//und der darauffolgende Abholtag nicht verwendet werden 
+			//	Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Liefertag(".$this->owner->Day.") ist abgeluafen; es gibt keinen weiteren");
+				//Da der erste Liefertag im Datumsbereich (deliveryStart) schon vorueber ist, 
+				//und der darauffolgende Liefertag nicht verwendet werden 
 				//darf NoNextDeliveryDate=true), wird false zurueck gegeben
 				return false;
 			}
 			$data=new ArrayData(
 				array(
-					"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
-					"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
-					"Short"=>strftime("%d.%m",$nextDeliveryDay),
-					"DayObject"=>$nextDeliveryDay,
-					"Day"=>$this->Day
+					"Eng"=>$liefertermin->format('Y-m-d'),
+					"Full"=>$liefertermin->format("%d.%m.%Y"),
+					"Short"=>$liefertermin->format("%d.%m"),
+					"Timestamp"=>$liefertermin->getTimestamp(),
+					"Day"=>$this->Day,
+					"DayObject"=>$liefertermin
 				)
 			);
 			$vars=new ArrayData(array("Data"=>$data));

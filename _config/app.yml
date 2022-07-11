@@ -30,4 +30,7 @@ Schrattenholz\Order\Attribute:
 Schrattenholz\Order\ProductList:
   extensions:
     - Schrattenholz\Delivery\DeliverySetup_ProductListExtension
+Schrattenholz\OrderProfileFeature\OrderCustomerGroup:
+  extensions:
+    - Schrattenholz\Delivery\Delivery_OrderCustomerGroup
 

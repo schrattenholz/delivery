@@ -75,8 +75,7 @@ class CollectionDay extends DeliveryDay
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		//Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate deliveryStart=".strftime("%Y.%m.%d",$deliveryStart));
 		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
-			$liefertermin=strtotime($this->owner->Day,$deliveryStart);
-			
+			$liefertermin=strtotime($this->owner->Day,$deliveryStart);			
 		}else{
 			$liefertermin=strtotime($this->owner->Day);
 		}
@@ -87,7 +86,7 @@ class CollectionDay extends DeliveryDay
 		}else if (!$deliverySetup->NoNextDeliveryDate){
 			// der nächste Abholtag ist nach dem Bestellschluss, es muss der uebernächste Tag genommen werden
 			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; zeige den naechstten abholtag an");
-			$nextDeliveryDay=strtotime("next ".$this->owner->Day, strtotime($this->owner->Day));
+			$nextDeliveryDay=strtotime("next ".$this->owner->Day, $liefertermin);
 		}else{
 			//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss für diesen Abholtag(".$this->owner->Day.") ist abgeluafen; es gibt keinen weiteren");
 			//Da der erste Abholtag im Datumsbereich (deliveryStart) schon vorueber ist, 
@@ -95,36 +94,48 @@ class CollectionDay extends DeliveryDay
 			//darf NoNextDeliveryDate=true), wird false zurueck gegeben
 			return false;
 		}
-		return new ArrayData(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo,"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),"Short"=>strftime("%d.%m",$nextDeliveryDay),"DayObject"=>$nextDeliveryDay));
+			//Injector::inst()->get(LoggerInterface::class)->error("collectionDay getNextDate formated:".$this->owner->genDateTime($nextDeliveryDay)->format('Y.m.d'));
+		return new ArrayData(
+			array("TimeFrom"=>$this->TimeFrom,
+			"TimeTo"=>$this->TimeTo,
+			"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
+			"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
+			"Short"=>strftime("%d.%m",$nextDeliveryDay),
+			"Timestamp"=>$nextDeliveryDay
+			)
+		);
 	}
 	public function getNextDates($currentOrderCustomerGroupID,$deliverySetupID,$weeks){
-		
 		$dates=new ArrayList();
-		$firstDate=$this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+		$firstDate=$this->owner->genDateTime($this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
+		
 		if($firstDate){
 			$dates->add(
 						array(
 						"TimeFrom"=>$this->TimeFrom,
 						"TimeTo"=>$this->TimeTo,
-						"Eng"=>strftime("%Y.%m.%d",$firstDate->DayObject),
-						"Full"=>strftime("%d.%m.%Y",$firstDate->DayObject),
-						"Short"=>strftime("%d.%m",$firstDate->DayObject),
-						"DayObject"=>$firstDate->DayObject
+						"Eng"=>$firstDate->format('Y.m.d'),
+						"Full"=>$firstDate->format("d.m.Y"),
+						"Short"=>$firstDate->format("d.m"),
+						"Timestamp"=>$firstDate->getTimestamp()
 						)
-					);
-				
+					);	
 			for($c=1;$c<$weeks;$c++){
-				
-				
-				$nextDeliveryDay=strtotime('+'.$c.' week '.strtotime($firstDate->DayObject),$firstDate->DayObject);
+				$nextDeliveryDateTimeStamp=strtotime('+'.$c.' week '.$firstDate->format('Y-m-d'),$firstDate->getTimestamp());
+				$nextDeliveryDate=new \DateTime();
+				$nextDeliveryDate->setTimestamp($nextDeliveryDateTimeStamp);
+				if(strftime("%Y.%m.%d",$nextDeliveryDateTimeStamp)=="1970.01.01"){
+					$c++;
+					$nextDeliveryDateTimeStamp=strtotime('+'.$c.' week '.$firstDate->format('Y-m-d'),$firstDate->getTimestamp());
+				}
 				$dates->add(new ArrayData(
 					array(
 						"TimeFrom"=>$this->TimeFrom,
 						"TimeTo"=>$this->TimeTo,
-						"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
-						"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
-						"Short"=>strftime("%d.%m",$nextDeliveryDay),
-						"DayObject"=>$nextDeliveryDay
+						"Eng"=>$nextDeliveryDate->format('Y.m.d'),
+						"Full"=>$nextDeliveryDate->format("d.m.Y"),
+						"Short"=>$nextDeliveryDate->format("d.m"),
+						"Timestamp"=>$nextDeliveryDateTimeStamp
 						)
 					)
 				);

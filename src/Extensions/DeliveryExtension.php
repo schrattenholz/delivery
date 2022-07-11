@@ -64,14 +64,14 @@ class DeliveryExtension extends DataExtension {
 		
 		
 		if($cityObject){
-			//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
+			Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
 			foreach($cityObject->Routes as $route){			
 				$routeObject=Route::get_by_id($route->ID);
 				$data=$routeObject->getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetup->ID);
-				Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity route=".$routeObject->Title."-".$routeObject->ID." city=".$cityObject->City->Title." --- route=".$routeObject->Cities()->where("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime."  cityObject->City->ID=".$cityObject->City->ID );
+				//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity route=".$routeObject->Title."-".$routeObject->ID." city=".$cityObject->City->Title." --- route=".$routeObject->Cities()->where("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime."  cityObject->City->ID=".$cityObject->City->ID );
 			
 
-						Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity  city=".$cityObject->City->Title." ArrivalTime = ".$routeObject->Cities()->filter("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime);
+					//	Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity  city=".$cityObject->City->Title." ArrivalTime = ".$routeObject->Cities()->filter("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime);
 					
 				$cityOnRoute=$routeObject->Cities()->filter("Delivery_CityID",$cityObject->City->ID)->First();
 				foreach($data as $deliveryDay){
@@ -121,12 +121,15 @@ class DeliveryExtension extends DataExtension {
 		
 		//Falls es im Warekoeb ein DeliverySpecial gibt wird dieses vorgezgezogen
 		if(isset($basket) && $basket->DeliverySpecial){
+			
 			// Es besteht ein Hauptsetup im Warenkorb, dass alle anderen überschreibt (IsPrimary==true)
 			$deliverySepcial=$this->SpecialDeliverySetup();
-			if($values->DeliverySetup->ID=$deliverySepcial->ID){
+			if($values->DeliverySetup->ID==$deliverySepcial->ID){
+				Injector::inst()->get(LoggerInterface::class)->error("Kein Hinweis");
 				//Das Setup der Produktvariante entspricht dem DeliverySpecial  - > Es wird im Template kein Hinweis benötigt
 				$values->DeliverySpecial=false;
 			}else{
+				Injector::inst()->get(LoggerInterface::class)->error("Hinweis anzeigen");
 				//Das Setup der Produktvariante weicht von dem DeliverySpecial ab - > Es wird im Template ein Hinweis benötigt
 				$values->DeliverySpecial=true;
 			}
@@ -167,11 +170,10 @@ class DeliveryExtension extends DataExtension {
 
 	public function getActiveDeliveryTypes(){
 		$deliveryTypes=ArrayList::create();
-		$basket=$this->owner->getBasket();
-		
+		$basket=$this->owner->getBasket();		
 		foreach(DeliveryType::get() as $dt){
 			$isActive=$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->IsActive;
-			Injector::inst()->get(LoggerInterface::class)->error('getActiveDeliveryTypes ocg Title='.$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value);
+			Injector::inst()->get(LoggerInterface::class)->error("ocg=".$this->owner->CurrentOrderCustomerGroup()->DeliveryTypes()->Count());
 			if($isActive && floatval($dt->OrderCustomerGroups()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value)<=floatval($basket->TotalPrice()->Price)){
 				$deliveryTypes->push($dt);
 			}
@@ -180,8 +182,35 @@ class DeliveryExtension extends DataExtension {
 	}
 	public function LinkCheckoutDelivery(){
 		$orderConfig=OrderConfig::get()->First();
-		$checkoutDelivery=SiteTree::get()->where('ID='.$orderConfig->CheckoutDeliveryID)->First();
-		return $checkoutDelivery->Link();
+		if($this->DeliveryIsActive()){
+			$nextPage=SiteTree::get()->where('ID='.$orderConfig->CheckoutDeliveryID)->First();
+		}else{
+			$nextPage=SiteTree::get()->where('ID='.$orderConfig->CheckoutSummaryID)->First();
+		}
+		return $nextPage->Link();
+	}
+	public function getCheckoutDeliveryPage(){
+		$orderConfig=OrderConfig::get()->First();
+		if($this->DeliveryIsActive()){
+			$nextPage=SiteTree::get()->where('ID='.$orderConfig->CheckoutDeliveryID)->First();
+		}else{
+			$nextPage=SiteTree::get()->where('ID='.$orderConfig->CheckoutSummaryID)->First();
+		}
+		return $nextPage;
+	}
+	public function DeliveryIsActive(){
+		
+		$cG=$this->owner->CurrentOrderCustomerGroup();
+		//Injector::inst()->get(LoggerInterface::class)->error('DeliveryIsActive -'.$cG->ID);
+		$config=$this->getDeliveryConfig();
+		if($cG->DeliveryConfigID==$config->ID){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	public function getDeliveryConfig(){
+			return DeliveryConfig::get()->First();	
 	}
 	public function setCheckoutDelivery($data){
 		$returnValues=new ArrayList(['Status'=>'good','Message'=>false,'Value'=>false]);
