@@ -218,7 +218,6 @@ function loginMember(){
 
 }
 function checkoutDelivery(nextLink,pageLink){
-alert("checkout");
 	var nextLink='$LinkCheckoutSummary';
 	var pageLink='$Link';
 	setCollectionDate();
