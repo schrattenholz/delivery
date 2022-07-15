@@ -210,10 +210,12 @@ class Route extends DataObject
 		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
 			Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
-			$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
-			
+			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+			if($nextDate){
+				$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
+			}
 		
-			if($firstDate){
+			if(isset($firstDate) && $firstDate){
 				//Injector::inst()->get(LoggerInterface::class)->error("route ersten Termin RouteID".$this->ID);
 				//$naechsterTermin=strtotime('next '.$dd->Day,$heute);
 				$dates->push(new ArrayData(
