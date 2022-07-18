@@ -7,6 +7,18 @@
 				<% include Schrattenholz/Order/Includes/CheckoutSteps %>
 
 						<% if $Basket.ProductContainers %>
+	<% if $OpenPreSaleProductInBasket %>
+		<div class="row">
+			<div class="col-12 font-size-sm">
+				<% if not $v %>
+					$BasketDeliverySetup($ID,$GroupPreise.Sort('SortID','ASC').First.ID).DeliverySetup.ContentProductShippingInfo
+				<% else %>
+					$BasketDeliverySetup($ID,$v).DeliverySetup.ContentProductShippingInfo
+				<% end_if %>
+			</div>
+		</div>
+	<% else %>
+						
 	<div class="row">
               <div class="col mb-4 card">
                 <div class="card-header">
@@ -88,6 +100,8 @@
                 </div>
               </div>
 			  </div>
+	 <% end_if %>
+			
 				<div class="row" id="paymenMethods_Holder">
 				<% if not $Top.Basket.DeliveryType %>
 					<% include Schrattenholz/Payment/Payment DeliveryTypeID=1 %>
