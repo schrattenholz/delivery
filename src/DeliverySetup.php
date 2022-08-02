@@ -138,8 +138,8 @@ class DeliverySetup extends DataObject
 		
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate",utf8_encode("Lieferung nur einmalig möglich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nächsten Woche angezeigt.)")));
 		
-		$fields->addFieldToTab('Root.Main',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));		
-		$fields->addFieldToTab('Root.Main',HTMLEditorField::create("GeneralShippingInfo",utf8_encode("Wird im Checkout angezeigt, wenn andere LieferSetups unterdrückt werden.")));
+		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));		
+		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("GeneralShippingInfo",utf8_encode("Wird im Checkout angezeigt, wenn andere LieferSetups unterdrückt werden.")));
 		
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates",utf8_encode("Es werden nur die Liefermöglchkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)")));
 		
