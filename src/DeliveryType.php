@@ -37,12 +37,15 @@ class DeliveryType extends DataObject
 	private static $db = array (
 		'Title'=>'Varchar(255)',
 		'SortOrder'=>'Int',
-		'Type'=>'Enum("collection,delivery,shipping","collection")'
+		'Type'=>'Enum("collection,delivery,shipping,openpresale","collection")'
 	);
 	private static $has_many=[
 		"Routes"=>Route::class,
 		"MinOrderValues"=>MinOrderValue::class,
 		
+	];
+	private static $belongs_many=[
+		"DeliverySetups"=>DeliverySetup::class
 	];
 	private static $many_many=[
 		"OrderCustomerGroups"=>OrderCustomerGroup::class

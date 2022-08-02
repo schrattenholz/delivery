@@ -30,7 +30,10 @@ class Delivery_Preis_Extension extends DataExtension {
 		// Auswahl eines DeliverySetup
 			
 			$deliverySetup=DropdownField::create("DeliverySetupID","Liefer-Setup",DeliverySetup::get()->map('ID', 'Title'));
-			$fields->addFieldToTab('Root.Lieferung',$deliverySetup);
+			 $verkaufsaktinons = $fields->fieldByName('Root')->fieldByName('Verkaufsaktionen');
+		
+			$fields->addFieldToTab('Root.Verkaufsaktionen',$deliverySetup);
+			$verkaufsaktinons->setTitle('Verkaufsaktionen/Lieferung');
 			
 		// Standard Liefervariaten für das neue Produkt aktivieren
 		if($this->owner->Created==$this->owner->LastEdited){

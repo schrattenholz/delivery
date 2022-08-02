@@ -258,6 +258,11 @@ class DeliveryExtension extends DataExtension {
 			$basket->ShippingDate=str_replace (".","-",$delivery['CollectionDate']);
 			$basket->RouteID=0;
 			$basket->CollectionDayID=$delivery['CollectionDay'];
+		}else if($delivery['DeliveryType']=="openpresale"){
+			// Abholung
+			$basket->ShippingDate="0000-00-00";
+			$basket->RouteID=0;
+			//$basket->CollectionDayID=$delivery['CollectionDay'];
 		}else{
 			// Fehlende Angaben zu den Lieferoptionen
 			$returnValues->Status="error";

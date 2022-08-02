@@ -46,7 +46,9 @@ class DeliverySetup extends DataObject
 		'NoDates'=>'Boolean',
 		'EnrollDeliverySetup'=>'Boolean',
 		'WeeksToShow'=>'Enum("1,2,3,4,5,6,7,8","1")',
-		'ContentProductShippingInfo'=>'HTMLText'
+		'ContentProductShippingInfo'=>'HTMLText',
+		'GeneralShippingInfo'=>'HTMLText',
+		'OpenPreSaleSetup'=>'Boolean'
 	);
 	private static $allowed_actions=[
 		"enrollDeliverySetup"
@@ -57,7 +59,8 @@ class DeliverySetup extends DataObject
 	private static $many_many=[
 		'Route_DeliveryDays'=>DeliveryDay::class,
 		'CollectionDays'=>CollectionDay::class,
-		'Routes'=>Route::class
+		'Routes'=>Route::class,
+		'DeliveryTypes'=>DeliveryType::class
 	];
 	private static $has_many=[
 		'Attributes'=>Attribute::class
@@ -135,7 +138,8 @@ class DeliverySetup extends DataObject
 		
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate",utf8_encode("Lieferung nur einmalig möglich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nächsten Woche angezeigt.)")));
 		
-		$fields->addFieldToTab('Root.Main',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));
+		$fields->addFieldToTab('Root.Main',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));		
+		$fields->addFieldToTab('Root.Main',HTMLEditorField::create("GeneralShippingInfo",utf8_encode("Wird im Checkout angezeigt, wenn andere LieferSetups unterdrückt werden.")));
 		
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates",utf8_encode("Es werden nur die Liefermöglchkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)")));
 		
@@ -143,6 +147,16 @@ class DeliverySetup extends DataObject
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsDefault",utf8_encode("Standard-Setup   (Dieses Liefer-Setup wird als Standard verwendet, wenn im Produkt im Warenkorb kein spezielles Liefer-Setup ausgewählt wurde.)")));
 		// Als Haupt-Setup festlegen festlegen
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsPrimary",utf8_encode("Haupt-Setup   (Dieses Liefer-Setup wird im Warenkorb als Haupt-Setup verwendet. Andere Setups im Warenkorb, die nicht als Haupt-Setup deklariert sind, werden ignoriert. Sind mehrer Haup-Setups im Warenkorb vorhanden, wird die kleinste gemeinsame Menge an Lieferoptionen angeboten.)")));
+		
+		//Versandarten aktivieren
+		$deliveryTypes=new CheckboxSetField( $name = "DeliveryTypes", $title = "Versandarten", DeliveryType::get() );
+		$fields->addFieldToTab('Root.Main', $deliveryTypes);
+		
+		// OpenPrSaleSetup
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("OpenPreSaleSetup",utf8_encode("Dieses Liefersetup wird für offene Vorverkäufe verwendet.")));
+		
+		
+		
 		//Auswahl der Abholoption
 		$collectionDays=new CheckboxSetField( $name = "CollectionDays", $title = "Abholtage", CollectionDay::get() );
 		$fields->addFieldToTab('Root.Main', $collectionDays);

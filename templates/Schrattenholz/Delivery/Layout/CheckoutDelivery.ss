@@ -10,11 +10,19 @@
 	<% if $OpenPreSaleProductInBasket %>
 		<div class="row">
 			<div class="col-12 font-size-sm">
-				<% if not $v %>
-					$BasketDeliverySetup($ID,$GroupPreise.Sort('SortID','ASC').First.ID).DeliverySetup.ContentProductShippingInfo
-				<% else %>
-					$BasketDeliverySetup($ID,$v).DeliverySetup.ContentProductShippingInfo
-				<% end_if %>
+					$OpenPreSaleProductInBasket.DeliverySetup.GeneralShippingInfo
+					
+					<h3 class="h6">Folgende Produkte befinden sich im offnen Vorverkauf</h3>
+					<ul>
+					<% loop $OpenPreSaleProductInBasket.PreSaleProducts %>
+					 <li>$Product.Title - $SummaryTitle</li>
+					<% end_loop %>
+					<ul>
+					<select id="deliveryType" class="form-control custom-select invisible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
+						<% loop $DeliverySetup.DeliveryTypes %>
+							<option value="$Type" data-deliveryTypeID="$ID" <% if $Top.Basket.DeliveryType.Type == $Type %>selected<% end_if %>>$Title</option>
+						<% end_loop %>
+                    </select>
 			</div>
 		</div>
 	<% else %>
@@ -34,14 +42,6 @@
                         </select>
                         <div class="invalid-feedback">Bitte wählen Sie eine Lieferoption</div>
                       </div>
-					  
-					  
-					  
-					  
-
-						
-						
-						
 						
 					  <% loop $DeliverySetup %>
 
