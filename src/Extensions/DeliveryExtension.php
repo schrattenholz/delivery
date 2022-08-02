@@ -171,7 +171,7 @@ class DeliveryExtension extends DataExtension {
 	public function getActiveDeliveryTypes(){
 		$deliveryTypes=ArrayList::create();
 		$basket=$this->owner->getBasket();		
-		foreach(DeliveryType::get() as $dt){
+		foreach($this->DeliveryTypes() as $dt){
 			$isActive=$dt->OrderCustomerGroups()->Filter("OrderCustomerGroupID",$this->owner->CurrentOrderCustomerGroup()->ID)->First()->IsActive;
 			Injector::inst()->get(LoggerInterface::class)->error("ocg=".$this->owner->CurrentOrderCustomerGroup()->DeliveryTypes()->Count());
 			if($isActive && floatval($dt->OrderCustomerGroups()->filter('OrderCustomerGroupID',$this->owner->CurrentOrderCustomerGroup()->ID)->First()->Value)<=floatval($basket->TotalPrice()->Price)){

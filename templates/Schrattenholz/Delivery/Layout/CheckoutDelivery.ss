@@ -19,7 +19,7 @@
 					<% end_loop %>
 					<ul>
 					<select id="deliveryType" class="form-control custom-select invisible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
-						<% loop $DeliverySetup.DeliveryTypes %>
+						<% loop $getActiveDeliveryTypes %>
 							<option value="$Type" data-deliveryTypeID="$ID" <% if $Top.Basket.DeliveryType.Type == $Type %>selected<% end_if %>>$Title</option>
 						<% end_loop %>
                     </select>
