@@ -15,12 +15,12 @@
 					<h3 class="h6">Folgende Produkte befinden sich im offnen Vorverkauf</h3>
 					<ul>
 					<% loop $OpenPreSaleProductInBasket.PreSaleProducts %>
-					 <li>$Product.Title - $SummaryTitle</li>
+					 <li><a href="$Product.Link?v=$ID" >$Product.Title - $SummaryTitle</a></li>
 					<% end_loop %>
 					<ul>
 					<select id="deliveryType" class="form-control custom-select invisible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
 						<% loop $getActiveDeliveryTypes %>
-							<option value="$Type" data-deliveryTypeID="$ID" <% if $Top.Basket.DeliveryType.Type == $Type %>selected<% end_if %>>$Title</option>
+							<option value="$Type" data-deliveryTypeID="$ID" <% if $Type == "openpresale" %>selected="selected"<% end_if %>>$Title</option>
 						<% end_loop %>
                     </select>
 			</div>
