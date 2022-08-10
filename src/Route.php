@@ -188,7 +188,7 @@ class Route extends DataObject
 			}
 		}
 	public function getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetupID){
-		Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
+		//Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
 		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		$deliveryDays=[];
@@ -209,7 +209,7 @@ class Route extends DataObject
 		$dates=new ArrayList();
 		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
-			Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
+			//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
 			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
 			if($nextDate){
 				$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);

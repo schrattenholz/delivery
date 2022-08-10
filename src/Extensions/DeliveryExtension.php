@@ -64,7 +64,7 @@ class DeliveryExtension extends DataExtension {
 		
 		
 		if($cityObject){
-			Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
+			//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
 			foreach($cityObject->Routes as $route){			
 				$routeObject=Route::get_by_id($route->ID);
 				$data=$routeObject->getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetup->ID);

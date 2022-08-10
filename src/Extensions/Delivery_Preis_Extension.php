@@ -36,14 +36,14 @@ class Delivery_Preis_Extension extends DataExtension {
 			$verkaufsaktinons->setTitle('Verkaufsaktionen/Lieferung');
 			
 		// Standard Liefervariaten für das neue Produkt aktivieren
-		if($this->owner->Created==$this->owner->LastEdited){
+		/*if($this->owner->Created==$this->owner->LastEdited){
 			// Standardrouten ermitteln 
-			/*$routes=array();
-			foreach(Route::get()->filter('IsSpecial','0') as $r){
+			//$routes=array();
+			//foreach(Route::get()->filter('IsSpecial','0') as $r){
 				//$this->owner->Routes()->add($r);
-				array_push($routes,$r->ID);
-			}
-			*/
+				//array_push($routes,$r->ID);
+			//}
+			
 			//StandardAbholtage ermitteln
 			$collectionDays=array();
 			foreach(CollectionDay::get()->filter('IsSpecial','0') as $r){
@@ -64,7 +64,7 @@ class Delivery_Preis_Extension extends DataExtension {
 			$collectionDay=CheckboxSetField::create('CollectionDays','Abholtage',CollectionDay::get());
 			//$route=CheckboxSetField::create('Routes','Lieferrouten',Route::get());
 			$deliveryDay=CheckboxSetField::create('DeliveryDays','Liefertage',DeliveryDay::get()->filter('ClassName','Schrattenholz\Delivery\DeliveryDay')->sort('RouteID'));
-		}
+		}*/
 	//	$fields->addFieldToTab('Root.Lieferung',CheckboxField::create('DeliverySpecial','Dieses hat indivuelle Lieferoptionen und bestimmt die Lieferoptionen für alle Produkte im Warenkorb'));
 		//$fields->addFieldToTab('Root.Lieferung',$collectionDay);
 		//$fields->addFieldToTab('Root.Lieferung',$route);
