@@ -169,6 +169,7 @@ class DeliveryExtension extends DataExtension {
 	}
 
 	public function getActiveDeliveryTypes(){
+		Injector::inst()->get(LoggerInterface::class)->error("getActiveDeliveryTypes");
 		$deliveryTypes=ArrayList::create();
 		$basket=$this->owner->getBasket();		
 		foreach($this->owner->DeliverySetup()->DeliveryTypes() as $dt){

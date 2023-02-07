@@ -44,7 +44,7 @@
                       </div>
 						
 					  <% loop $DeliverySetup %>
-
+<% if $Top.getActiveDeliveryTypes.Filter("Type","delivery").Count>0%>
                       <div id="DeliveryContainer" class="form-group delivery <% if $Top.Basket.DeliveryType.Type=="delivery" %><% else %>d-none<% end_if %>">
 					<% if $getCity($Top.CurrentOrderCustomerGroup.ID,$Top.CheckoutAddress.ZIP,$Top.CheckoutAddress.City) %>
                         <select class="form-control custom-select" name="Delivery" id="Delivery" <% if $getActiveDeliveryTypes.First.Type=="delivery" %><% else %>disabled<% end_if %>>	   
@@ -78,7 +78,7 @@
 						<input type="hidden" id="deliveryDate" name="DeliveryDate" <% if $Top.Basket.ShippingDate %>value="$Top.Basket.ShippingDate"<% end_if %> />
                         <input type="hidden" id="deliveryRoute" name="DeliveryRoute" <% if $Top.Basket.RouteID %>value="$Top.Basket.RouteID"<% end_if %> />
                       </div> 
-					 
+<% end_if %>
 						<div id="CollectionContainer" class="form-group collection <% if $Top.Basket.DeliveryType.Type="collection" %><% else %>d-none<% end_if %>">
                         <select class="form-control custom-select" name="CollectionDay" <% if $Top.Basket.DeliveryType.Type =="delivery" %> <% else %>required="required" <% end_if %>>
                           <option value="" data-day="" data-timefrom="" data-timeto="">Wählen Sie Ihren Abholtag</option>
