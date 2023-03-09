@@ -212,6 +212,7 @@ class Route extends DataObject
 			//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
 			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
 			if($nextDate){
+				//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay Datum gefunden".$dd->Day);
 				$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
 			}
 		

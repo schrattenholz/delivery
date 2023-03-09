@@ -10,6 +10,7 @@
 	<% if $OpenPreSaleProductInBasket %>
 		<div class="row">
 			<div class="col-12 font-size-sm">
+			$OpenPreSaleProductInBasket.DeliverySetup.ID</br>
 					$OpenPreSaleProductInBasket.DeliverySetup.GeneralShippingInfo
 					
 					<h3 class="h6">Folgende Produkte befinden sich im offnen Vorverkauf</h3>
@@ -18,7 +19,7 @@
 					 <li><a href="$Product.Link?v=$ID" >$Product.Title - $SummaryTitle</a></li>
 					<% end_loop %>
 					<ul>
-					<select id="deliveryType" class="form-control custom-select invisible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
+					<select id="deliveryType" class="form-control custom-select visible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
 						<% loop $getActiveDeliveryTypes %>
 							<option value="$Type" data-deliveryTypeID="$ID" <% if $Type == "openpresale" %>selected="selected"<% end_if %>>$Title</option>
 						<% end_loop %>

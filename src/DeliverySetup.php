@@ -90,6 +90,7 @@ class DeliverySetup extends DataObject
 						array(
 						"Sort"=>$nextDate->Short,
 						"DayTranslated"=>$cD->DayTranslated(),
+						"DayTranslatedShort"=>$cD->DayTranslatedShort(),
 						"Date"=>array(
 							"Short"=>$nextDate->Short,
 							"Eng"=>$nextDate->Eng

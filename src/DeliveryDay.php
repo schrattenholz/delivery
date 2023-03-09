@@ -64,6 +64,9 @@ class DeliveryDay extends DataObject
 	public function DayTranslated(){
 		return _t("Day.".$this->Day,$this->Day);
 	}
+	public function DayTranslatedShort(){
+		return _t("Day.".$this->Day."S",$this->Day);
+	}
 	public function getTitle(){
 		return $this->DayTranslated();
 	}
@@ -197,14 +200,14 @@ class DeliveryDay extends DataObject
 		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
 		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
-		
+		Injector::inst()->get(LoggerInterface::class)->error("deadline= ". $deadline->Active);
 		if($deadline->Active){
 			if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
 				$liefertermin=$this->genDateTime(strtotime($this->owner->Day,$deliveryStart));		
 			}else{
 				$liefertermin=$this->genDateTime(strtotime($this->owner->Day));
 			}
-			//Injector::inst()->get(LoggerInterface::class)->error("original Termin ". $liefertermin->format("Y.m.d"));
+			Injector::inst()->get(LoggerInterface::class)->error("original Termin ". $liefertermin->format("Y.m.d"));
 			if(!$this->WeekIsInActiveInterval($this->Route->Interval,$liefertermin->format("Y-m-d"))){	
 				// Wenn das Interval (gerade/ungerade) nicht passt, nimmm die naechste Woche
 				//Injector::inst()->get(LoggerInterface::class)->error("nehste Woche wegen Interval ". $liefertermin->format("Y.m.d"));

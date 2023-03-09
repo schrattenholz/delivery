@@ -25,6 +25,13 @@ de:
     FriS: 'Fr'
     SatS: 'Sa'
     SunS: 'So'
+    mondayS: 'Mo'
+    tuesdayS: 'Di'
+    wednesdayS: 'Mi'
+    thursdayS: 'Do'
+    fridayS: 'Fr'
+    saturdayS: 'Sa'
+    sundayS: 'So'
   Month:
     Jan: 'Januar'
     Feb: 'Februar'

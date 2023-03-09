@@ -46,7 +46,7 @@ class DeliverySetup_ProductListExtension extends DataExtension{
 	);
 	// Extension for ProductList::getCMSFields
 	public function addExtension(FieldList $fields){
-		if($this->owner->ID==OrderConfig::get()->First()->ProductRootID){
+		if($this->owner->ID==OrderConfig::get()->First()->ProductRootID or $this->owner->Design=="Abverkaufliste"){
 		$fields->addFieldToTab("Root.Produkte",DropdownField::create("DeliverySetupID","Liefer-Setup",DeliverySetup::get()->map('ID', 'Title'))->setEmptyString(utf8_encode('(Bitte auswählen)')),'Preise');
 		}
 	}
