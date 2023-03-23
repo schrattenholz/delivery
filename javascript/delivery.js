@@ -192,6 +192,7 @@ jQuery( document ).ready(function() {
 		jQuery('#checkoutDelivery').submit(function (event) {
 				event.preventDefault();
 			if (jQuery('#checkoutDelivery')[0].checkValidity() === false) {
+				
 				event.stopPropagation();
 			} else {
 				
