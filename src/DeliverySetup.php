@@ -30,6 +30,26 @@ use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\Queries\SQLSelect;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Security\Permission;
+use Schrattenholz\OrderProfileFeature\OrderProfileFeature_Basket;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Security\IdentityStore;
+use SilverStripe\Control\Session;
+
+
+
+use SilverStripe\CMS\Model\SiteTree;
+
+
+use SilverStripe\Control\Email\Email;
+use Schrattenholz\Order\Backend;
+
+
+use SilverStripe\View\Requirements;
+
+use SilverStripe\Security\Security;
+
+
+
 class DeliverySetup extends DataObject
 {
 	private static $singular_name="LieferSetup";
@@ -78,12 +98,53 @@ class DeliverySetup extends DataObject
 		
 		
 	}
-	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID){
+	public function CustomDeliverySetup(){		
+		$basket=$this->owner->getBasket();
+		if(isset($basket) && $basket->DeliverySpecial){		
+			$setup=	 $this->SpecialDeliverySetup();	
+			if($basket->ShippingDate){
+				$setup->ShippingDate=$basket->ShippingDate;
+			}
+			return $setup;
+		}else{
+			$setup=$this->DefaultDeliverySetup();
+			if($basket->ShippingDate){
+				$setup->ShippingDate=$basket->ShippingDate;
+			}
+			return $setup;
+		}
+	}
+		function getSession(){
+		$request = Injector::inst()->get(HTTPRequest::class);
+		$session = $request->getSession();
+		return $session;
+	}
+	public function getSessionBasketID(){
+		$request = Injector::inst()->get(HTTPRequest::class);
+		//$session = $request->getSession();
+		return $this->getSession()->get('basketid');
+	}
+	public function getSessionOrderID(){
+		$request = Injector::inst()->get(HTTPRequest::class);
+		//$session = $request->getSession();
+		return $this->getSession()->get('orderid');
+	}
+	public function getBasket(){
+		return OrderProfileFeature_Basket::get()->byID($this->getSessionBasketID());
+	}
+	public function getNextCollectionDays($orderCustomerGroupID,$deliverySetupID,$productID=0,$variantID=0){
+		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
+		$basket=$this->owner->getBasket();
+		
+			if($basket && $basket->ShippingDate){
+					$deliverySetup->ShippingDate=$basket->ShippingDate;
+			}
+		
 		//Injector::inst()->get(LoggerInterface::class)->error("getNextCollectionDays");
 		$sortedCollectionDays=new ArrayList();
 		foreach($this->CollectionDays() as $cD){
 			
-			$nextDates=$cD->getNextDates($orderCustomerGroupID,$deliverySetupID,$this->WeeksToShow);
+			$nextDates=$cD->getNextDates($orderCustomerGroupID,$deliverySetup,$this->WeeksToShow,$productID,$variantID);
 			if($nextDates){
 				foreach($nextDates as $nextDate){
 					$sortedCollectionDays->add(
@@ -253,7 +314,7 @@ class DeliverySetup extends DataObject
 			foreach($this->Routes()->filter('ID',$routes) as $r){
 				
 				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die DeliveryDays der Route, die im Liefersetup aktiviert sind
-				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
+				$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this,0,0);
 								
 				
 				// Sucht den verfuegbaren Orte auf der Route

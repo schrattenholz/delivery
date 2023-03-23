@@ -187,9 +187,9 @@ class Route extends DataObject
 				return 0;				
 			}
 		}
-	public function getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetupID){
+	public function getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID){
+		$deliverySetupID=$deliverySetup->ID;
 		//Injector::inst()->get(LoggerInterface::class)->error("route getNextDeliveryDates=");
-		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
 		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		$deliveryDays=[];
 		foreach($deliverySetup->Route_DeliveryDays() as $dd){
@@ -210,10 +210,10 @@ class Route extends DataObject
 		
 		foreach($this->DeliveryDays()->filter('ID',$deliveryDays) as $dd){
 			//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay=".$dd->Day);
-			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID);
+			$nextDate=$dd->getNextDate($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID);
 			if($nextDate){
 				//Injector::inst()->get(LoggerInterface::class)->error("route DeliveryDay Datum gefunden".$dd->Day);
-				$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
+				$firstDate=$this->genDateTime($dd->getNextDate($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID)->Timestamp);
 			}
 		
 			if(isset($firstDate) && $firstDate){

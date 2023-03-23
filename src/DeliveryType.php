@@ -37,7 +37,8 @@ class DeliveryType extends DataObject
 	private static $db = array (
 		'Title'=>'Varchar(255)',
 		'SortOrder'=>'Int',
-		'Type'=>'Enum("collection,delivery,shipping,openpresale","collection")'
+		'Type'=>'Enum("collection,delivery,shipping,openpresale","collection")',
+		'Price'=>'Decimal(6,2)'
 	);
 	private static $has_many=[
 		"Routes"=>Route::class,
@@ -65,11 +66,7 @@ class DeliveryType extends DataObject
 
  	public function getCMSFields()
 	{
-		$fields=FieldList::create(TabSet::create('Root'));
-
-
-
-		
+		$fields=FieldList::create(TabSet::create('Root'));		
 		$type=new DropdownField("Type","Versandart",singleton('Schrattenholz\\Delivery\\DeliveryType')->dbObject('Type')->enumValues());
 		$fields->addFieldsToTab('Root.Main', [
 			TextField::create('Title','Titel'),
@@ -77,6 +74,13 @@ class DeliveryType extends DataObject
 			
 			//DropdownField::create("UnitID","Einheit, falls abweichend eintragen.",Unit::get()->map("ID", "Title", "Bitte auswählen"))
         ]);
+		$price=new NumericField("Price","Zusatzkosten");
+		$price->setLocale("DE_De");
+		$price->setScale(2);
+		
+		$fields->addFieldToTab("Root.Main", $price); 
+		$price->displayIf("Type")->isEqualTo("shipping")->orIf("Type")->isEqualTo("delivery");
+		
 				/*$ocg=new CheckboxSetField( $name = "CollectionDays", $title = "Anzeige für folgende Kundengruppen", OrderCustomerGroup::get() );
 		$fields->addFieldToTab('Root.Main', $ocg,'MinOrderValues');*/
 		//MinOrderValue pro Kundengruppe

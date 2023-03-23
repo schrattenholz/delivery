@@ -67,14 +67,29 @@ class CollectionDay extends DeliveryDay
 		$data->push(array("TimeFrom"=>$this->TimeFrom,"TimeTo"=>$this->TimeTo."muh"));
 
 	}*/
-	public function getNextDate($currentOrderCustomerGroupID,$deliverySetupID){
-		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
+	public function getNextDate($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID){
+		$deliverySetupID=$deliverySetup->ID;
 		$heute = strtotime(date("Y-m-d"));
 		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
 		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
-		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
-		//Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate deliveryStart=".strftime("%Y.%m.%d",$deliveryStart));
-		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
+		
+		Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate variantID=".$variantID);
+		if($variantID>0){
+			$product=Preis::get()->byID($variantID);
+			if($product->getPreSaleMode()=="presale"){			
+				$deliveryStart=strtotime($product->PreSaleEnd);
+			}else{
+				$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+			}
+				
+		}else if ($deliverySetup->ShippingDate){
+			
+			$deliveryStart=strtotime($deliverySetup->ShippingDate);
+		}else{
+			$deliveryStart=strtotime($deliverySetup->DeliveryStart);	
+		}
+		
+		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute or isset($product) && $product->getPreSaleMode()=="presale" && $deliveryStart>=$heute or $deliverySetup->ShippingDate){
 			$liefertermin=strtotime($this->owner->Day,$deliveryStart);			
 		}else{
 			$liefertermin=strtotime($this->owner->Day);
@@ -105,9 +120,9 @@ class CollectionDay extends DeliveryDay
 			)
 		);
 	}
-	public function getNextDates($currentOrderCustomerGroupID,$deliverySetupID,$weeks){
+	public function getNextDates($currentOrderCustomerGroupID,$deliverySetup,$weeks,$productID,$variantID){
 		$dates=new ArrayList();
-		$firstDate=$this->owner->genDateTime($this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
+		$firstDate=$this->owner->genDateTime($this->getNextDate($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID)->Timestamp);
 		
 		if($firstDate){
 			$dates->add(

@@ -1,4 +1,4 @@
-/*vendor\schrattenholz\delivery\javascript\delivery.js*/
+/*vendor\schrattenholz\delivery\javascript\delivery.js akt*/
 
 function loadShippingOptions(priceBlockElementID,productID){
 	jQuery.ajax({
@@ -12,6 +12,24 @@ function loadShippingOptions(priceBlockElementID,productID){
 			$returnValues->Value='object';
 		*/
 					$('#shippingOptions').html(data);
+
+		}
+	});
+}
+
+function loadDeliveryType_Options(selectedDeliveryType){
+	jQuery.ajax({
+		url: pageLink+"/getDeliveryType_Options?DeliveryTypeID="+selectedDeliveryType,
+		success: function(data) {
+		
+		/*
+		JSON
+			$returnValues->Status=false;
+			$returnValues->Message="Das Passwort muss mindestens 8 Zeiechen haben!";
+			$returnValues->Value='object';
+		*/
+					$('#DeliveryType_Options_Holder').html(data);
+					setDelivery();
 
 		}
 	});

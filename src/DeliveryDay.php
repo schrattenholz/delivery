@@ -134,9 +134,9 @@ class DeliveryDay extends DataObject
 		}
 	}
 	// Gibt eine spanne von Lieferterminen zurueck
-	public function getNextDates($currentOrderCustomerGroupID,$deliverySetupID,$weeks){
+	public function getNextDates($currentOrderCustomerGroupID,$deliverySetup,$weeks,$productID,$variantID){
 		$dates=new ArrayList();
-		$firstDate=$this->genDateTime($this->getNextDate($currentOrderCustomerGroupID,$deliverySetupID)->Timestamp);
+		$firstDate=$this->genDateTime($this->getNextDate($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID)->Timestamp);
 		//Injector::inst()->get(LoggerInterface::class)->error("firstDate=".$firstDate->format('Y.m.d'));
 		if($firstDate){			
 			$dates->add(
@@ -194,15 +194,32 @@ class DeliveryDay extends DataObject
 		return $dateTime->setTimestamp($timestamp);
 	}
 	// Gibt den nachst möeglichen Liefertermin zurueck. Fuer Es wird nur ein Liefertermin automatisch angezeigt
-	public function getNextDate($currentOrderCustomerGroupID,$deliverySetupID){
-		$deliverySetup=DeliverySetup::get()->byID($deliverySetupID);
+	public function getNextDate($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID){
+		$deliverySetupID=$deliverySetup->ID;
 		$heute = strtotime(date("Y-m-d"));
 		$deadline=$this->owner->Deadlines()->filter('OrderCustomerGroupID',$currentOrderCustomerGroupID)->First();
 		$nextDeliveryDay=strtotime('next '.$this->owner->Day);
-		$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+		//$deliveryStart=strtotime($deliverySetup->DeliveryStart);
 		Injector::inst()->get(LoggerInterface::class)->error("deadline= ". $deadline->Active);
+		
+		if($variantID>0){
+			$product=Preis::get()->byID($variantID);
+			if($product->getPreSaleMode()=="presale"){			
+				$deliveryStart=strtotime($product->PreSaleEnd);
+			}else{
+				$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+			}
+		}else if ($deliverySetup->ShippingDate){
+			
+			$deliveryStart=strtotime($deliverySetup->ShippingDate);
+		}else{
+			$deliveryStart=strtotime($deliverySetup->DeliveryStart);			
+		}
+		
+		
+		
 		if($deadline->Active){
-			if($deliverySetup->DeliveryStart && $deliveryStart>=$heute){
+			if($deliverySetup->DeliveryStart && $deliveryStart>=$heute  or isset($product) && $product->getPreSaleMode()=="presale" && $deliveryStart>=$heute or $deliverySetup->ShippingDate){
 				$liefertermin=$this->genDateTime(strtotime($this->owner->Day,$deliveryStart));		
 			}else{
 				$liefertermin=$this->genDateTime(strtotime($this->owner->Day));

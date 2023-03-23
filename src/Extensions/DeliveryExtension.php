@@ -35,8 +35,24 @@ class DeliveryExtension extends DataExtension {
 		'getZipsAjax',
 		'getCities',
 		'getCitiesByZIP',
-		'getCitiesByZIPAjax'
+		'getCitiesByZIPAjax',
+		'getDeliveryType_Options'
 	);
+	public function getDeliveryType_Options_FromTemplate($DeliveryTypeID){
+		$data['DeliveryTypeID']=$DeliveryTypeID;
+		return $this->getDeliveryType_Options($data);
+	}
+	public function getDeliveryType_Options($data){
+		$deliveryTypeID=$data['DeliveryTypeID'];
+		$checkoutAddress=$this->owner->getCheckoutAddress();
+		$data=new ArrayData($this->owner);
+		
+		return $this->owner->customise($data)->renderWith(ThemeResourceLoader::inst()->findTemplate(
+				"Schrattenholz\\Delivery\\DeliveryType_Options\\".ucfirst(DeliveryType::get()->byID($deliveryTypeID)->Type),
+				SSViewer::config()->uninherited('themes')
+			));
+		//return $paginatedProducts;
+	}
 	public function getShippingOptions($data){
 		$priceBlockElementID=$data['priceBlockElementID'];
 		$productID=$data['productID'];
@@ -48,7 +64,7 @@ class DeliveryExtension extends DataExtension {
 			));
 		//return $paginatedProducts;
 	}
-	public function DeliveryDatesForCity($currentOrderCustomerGroupID,$ZIP,$City){
+	public function DeliveryDatesForCity($currentOrderCustomerGroupID,$ZIP,$City,$productID=0,$variantID=0){
 		$deliverySetup=$this->owner->DeliverySetup();
 		
 		$cityObject=$deliverySetup->getCityNEW($currentOrderCustomerGroupID,$ZIP,$City);
@@ -67,7 +83,7 @@ class DeliveryExtension extends DataExtension {
 			//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
 			foreach($cityObject->Routes as $route){			
 				$routeObject=Route::get_by_id($route->ID);
-				$data=$routeObject->getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetup->ID);
+				$data=$routeObject->getNextDeliveryDates($currentOrderCustomerGroupID,$deliverySetup,$productID,$variantID);
 				//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity route=".$routeObject->Title."-".$routeObject->ID." city=".$cityObject->City->Title." --- route=".$routeObject->Cities()->where("Delivery_CityID",$cityObject->City->ID)->First()->ArrivalTime."  cityObject->City->ID=".$cityObject->City->ID );
 			
 
@@ -143,12 +159,18 @@ class DeliveryExtension extends DataExtension {
 	public function DeliverySetup(){
 		
 		$basket=$this->owner->getBasket();
-		if(isset($basket) && $basket->DeliverySpecial){
-			
-			return $this->SpecialDeliverySetup();
+		if(isset($basket) && $basket->DeliverySpecial){		
+			$setup=	 $this->SpecialDeliverySetup();	
+			if($basket && $basket->ShippingDate){
+				$setup->ShippingDate=$basket->ShippingDate;
+			}
+			return $setup;
 		}else{
-			
-			return $this->DefaultDeliverySetup();
+			$setup=$this->DefaultDeliverySetup();
+			if($basket && $basket->ShippingDate){
+				$setup->ShippingDate=$basket->ShippingDate;
+			}
+			return $setup;
 		}
 	}
 	public function DefaultDeliverySetup(){
@@ -265,6 +287,11 @@ class DeliveryExtension extends DataExtension {
 			$basket->ShippingDate="0000-00-00";
 			$basket->RouteID=0;
 			//$basket->CollectionDayID=$delivery['CollectionDay'];
+		}else if($delivery['DeliveryType']=="shipping"){
+			// Abholung
+			//$basket->ShippingDate="0000-00-00";
+			$basket->RouteID=0;
+			//$basket->CollectionDayID=$delivery['CollectionDay'];
 		}else{
 			// Fehlende Angaben zu den Lieferoptionen
 			$returnValues->Status="error";
@@ -311,7 +338,12 @@ class DeliveryExtension extends DataExtension {
 			}else{
 				$basket->DeliverySpecial=$productDetails->ID;
 			}
+			
 		}
+		Injector::inst()->get(LoggerInterface::class)->error('PreSaleMode='.$productDetails->getPreSaleMode()." PreSaleEnd=".$productDetails->PreSaleEnd );
+			if($productDetails->getPreSaleMode()=="presale" && $productDetails->PreSaleEnd){		
+					$basket->ShippingDate=$productDetails->PreSaleEnd;
+			}
 		$basket->write();
 	}
 	// Entfernt ein Produkt mit einem bevorzugten LieferSetUp aus dem Warenkorb

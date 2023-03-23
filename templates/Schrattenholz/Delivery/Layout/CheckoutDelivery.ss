@@ -1,16 +1,17 @@
 <% include PageTitleOverlap %>
     <!-- Page Content-->
 	<div class="container pb-5 mb-2 mb-md-4">
-	<form id="checkoutDelivery" class="needs-validation" novalidate>
+	
 		<div class="row">
 			<section id="content" class="col-lg-8">
 				<% include Schrattenholz/Order/Includes/CheckoutSteps %>
 
 						<% if $Basket.ProductContainers %>
+						<form id="checkoutDelivery" class="needs-validation" novalidate>
 	<% if $OpenPreSaleProductInBasket %>
 		<div class="row">
 			<div class="col-12 font-size-sm">
-			$OpenPreSaleProductInBasket.DeliverySetup.ID</br>
+			
 					$OpenPreSaleProductInBasket.DeliverySetup.GeneralShippingInfo
 					
 					<h3 class="h6">Folgende Produkte befinden sich im offnen Vorverkauf</h3>
@@ -18,89 +19,66 @@
 					<% loop $OpenPreSaleProductInBasket.PreSaleProducts %>
 					 <li><a href="$Product.Link?v=$ID" >$Product.Title - $SummaryTitle</a></li>
 					<% end_loop %>
-					<ul>
-					<select id="deliveryType" class="form-control custom-select visible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
-						<% loop $getActiveDeliveryTypes %>
-							<option value="$Type" data-deliveryTypeID="$ID" <% if $Type == "openpresale" %>selected="selected"<% end_if %>>$Title</option>
-						<% end_loop %>
-                    </select>
+					</ul>
+					<div class="row">
+						<div class="col">
+							<div class="card-header border-bottom-0">
+								<h3 class="accordion-heading">Versandoptionen<span class="accordion-indicator"></span></h3>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col col-sm-6">
+							<div class="form-group">
+								
+								<select id="deliveryType" class="form-control custom-select visible" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
+								<% loop $getActiveDeliveryTypes %>
+									<option value="$Type" data-deliveryTypeID="$ID" <% if $ID == $Top.Basket.DeliveryTypeID %>selected="selected"<% end_if %>>$Title</option>
+								<% end_loop %>
+								</select>
+								<div class="invalid-feedback">Bitte wählen Sie eine Lieferoption</div>
+							 </div>
+						</div> 
+						<div  class="col col-sm-6" id="DeliveryType_Options_Holder" >
+							
+							<% if $Top.Basket.DeliveryType %>
+								$getDeliveryType_Options_FromTemplate($Top.Basket.DeliveryType.ID)
+							<% end_if %>
+							
+						</div>
+					</div>
 			</div>
 		</div>
 	<% else %>
-						
 	<div class="row">
-              <div class="col mb-4 card">
-                <div class="card-header">
-                  <h3 class="accordion-heading">Versandoptionen<span class="accordion-indicator"></span></h3>
-                </div>
-                <div  id="shipping-estimates" data-parent="#order-options">
-                  <div class="card-body">
-					<div class="form-group">
-						<select id="deliveryType" class="form-control custom-select" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
+		<div class="col">
+			<div class="card-header border-bottom-0">
+				<h3 class="accordion-heading">Versandoptionen<span class="accordion-indicator"></span></h3>
+			</div>
+		</div>
+	</div>
+	<div class="row" id="shipping-estimates" data-parent="#order-options">
+		<div class="col col-sm-6">
+			<div class="form-group">
+				<select id="deliveryType" class="form-control custom-select" required="required" name="DeliveryType"  onload="changeDeliveryType();" onchange="changeDeliveryType();">
 							<% loop $getActiveDeliveryTypes %>
 								<option value="$Type" data-deliveryTypeID="$ID" <% if $Top.Basket.DeliveryType.Type == $Type %>selected<% end_if %>>$Title</option>
 							<% end_loop %>
-                        </select>
-                        <div class="invalid-feedback">Bitte wählen Sie eine Lieferoption</div>
-                      </div>
-						
-					  <% loop $DeliverySetup %>
-<% if $Top.getActiveDeliveryTypes.Filter("Type","delivery").Count>0%>
-                      <div id="DeliveryContainer" class="form-group delivery <% if $Top.Basket.DeliveryType.Type=="delivery" %><% else %>d-none<% end_if %>">
-					<% if $getCity($Top.CurrentOrderCustomerGroup.ID,$Top.CheckoutAddress.ZIP,$Top.CheckoutAddress.City) %>
-                        <select class="form-control custom-select" name="Delivery" id="Delivery" <% if $getActiveDeliveryTypes.First.Type=="delivery" %><% else %>disabled<% end_if %>>	   
+				</select>
+				<div class="invalid-feedback">Bitte wählen Sie eine Lieferoption</div>
+			</div> 
+		</div>
+		<div class="col col-sm-6">
+			<div id="DeliveryType_Options_Holder" >
+				<% if $Top.Basket.DeliveryType %>
+					$getDeliveryType_Options_FromTemplate($Top.Basket.DeliveryType.ID)
+				<% end_if %>
+			</div>
+			<div class="deliverynotice d-none">Liefertermin</div>
+		</div>
+    </div>
 
-					<option value="" data-city="" data-zip="">Wählen Sie Ihren Ort</option>
-						<% loop $getCities($Top.CurrentOrderCustomerGroup.ID).Sort('Title') %>
-							<% loop $Top.DeliveryDatesForCity($Top.CurrentOrderCustomerGroup.ID, $Delivery_ZIPCodes.First.Title,$Title).Dates %>
-							<% if $First %>
-							<% loop $Up.ZIPs %>$Title - $Top.CheckoutAddress.ZIP<% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %>
-							<option <% loop $Up.ZIPs %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %>
-							value="$Up.ID"
-							data-city="$Up.Title"
-							data-zip="<% loop $Up.ZIPs %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-							data-deliverydata="<% end_if %><% if $First %><% else %>;<% end_if %>$DayShort, $Short|$Eng|$RouteID|$ArrivalTime<% if $Last %>">
-							$Up.Title			
-							</option>
-							<% end_if %>
-							<% end_loop %>
-							
-						
-						<% end_loop %>
-							
-						
-						
-                        </select>
-						<% else %>
-							<p>Leider findet nach $Top.CheckoutAddress.City zur Zeit keine Lieferung statt.</p>
-							<p>Sie möchten, dass Ihr Ort in eine unsere Lieferrouten aufgenommen wird?
-							Sprechen Sie uns an. Vielleicht k&ouml;nnen wir es einrichten. </p>
-						<% end_if %>
-						<input type="hidden" id="deliveryDate" name="DeliveryDate" <% if $Top.Basket.ShippingDate %>value="$Top.Basket.ShippingDate"<% end_if %> />
-                        <input type="hidden" id="deliveryRoute" name="DeliveryRoute" <% if $Top.Basket.RouteID %>value="$Top.Basket.RouteID"<% end_if %> />
-                      </div> 
-<% end_if %>
-						<div id="CollectionContainer" class="form-group collection <% if $Top.Basket.DeliveryType.Type="collection" %><% else %>d-none<% end_if %>">
-                        <select class="form-control custom-select" name="CollectionDay" <% if $Top.Basket.DeliveryType.Type =="delivery" %> <% else %>required="required" <% end_if %>>
-                          <option value="" data-day="" data-timefrom="" data-timeto="">Wählen Sie Ihren Abholtag</option>
-                          <% loop $getNextCollectionDays($Top.CurrentOrderCustomerGroup.ID,$ID) %>
-						  
-						  <option value="$ID" data-day="$Day" data-date="$Date.Eng"
-						  data-timefrom="$Time.From" 
-						  data-timeto="$Time.To"
-						   <% if $Top.Basket.CollectionDayID == $ID %>selected="selected"<% end_if %>>
-						  $DayTranslated, $Date.Short
-						  </option>
-                         <% end_loop %>
-                        </select>
-						<input type="hidden" id="collectionDate" name="CollectionDate" <% if $Top.CheckoutAddress.CollectionDate %>value="$Top.CheckoutAddress.CollectionDate"<% end_if %> />
-                      </div>
-<% end_loop %>					  
-					  <div class="deliverynotice d-none">Liefertermin</div>
-                  </div>
-                </div>
-              </div>
-			  </div>
+			  
 	 <% end_if %>
 			
 				<div class="row" id="paymenMethods_Holder">
@@ -110,6 +88,7 @@
 					<% include Schrattenholz/Payment/Payment DeliveryTypeID=$Top.Basket.DeliveryTypeID %>
 				<% end_if %>
 		</div>
+		</form>
     <!-- Toast: Delivery-->
     <div class="toast-container toast-bottom-center">
       <div class="toast mb-3" id="delivery-toast" data-delay="10000" role="info" aria-live="assertive" aria-atomic="true">
@@ -122,9 +101,7 @@
     </div>
 						<% else %>
 						  <div class="card">
-                <div class="card-header">
-                  <h3 class="accordion-heading">Versandoptionen<span class="accordion-indicator"></span></h3>
-                </div>
+
 							<p>Es befinden sich momentan keine Produkte in Deinem Warenkorb!</p>
 							<a href="$LinkProductRoot">Zur Produkt-&Uuml;bersicht</a>
 							</div>
@@ -180,7 +157,7 @@
 				</div>
 
 		</div>
-		</form>
+		
 	</div>
 	
 <script>
@@ -199,6 +176,7 @@ function changeDeliveryType(){
 	}
 	var selectedDeliveryType=jQuery('#deliveryType option[value=' + jQuery('#deliveryType').val() + ']').attr("data-deliveryTypeID");
 	loadPaymentMethods(selectedDeliveryType,0);
+	loadDeliveryType_Options(selectedDeliveryType,0);
 }
 
 function loginMember(){
@@ -233,6 +211,7 @@ function loginMember(){
 
 }
 function checkoutDelivery(nextLink,pageLink){
+setPaymentMethodID($("#PaymentMethodID").val());
 	var nextLink='$LinkCheckoutSummary';
 	var pageLink='$Link';
 	setCollectionDate();
