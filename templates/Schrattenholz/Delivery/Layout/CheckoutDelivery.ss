@@ -101,6 +101,33 @@
 							</button>
 						</div>
 					</div>
+					<!-- Sidebar-->
+        <aside class="col-lg-4 pt-4 pt-lg-0">
+          <div class="cz-sidebar-static rounded-lg box-shadow-lg ml-lg-auto">
+            <div class="widget mb-3">
+                <h2 class="h6 mb-4 text-center"><i class="h6 text-body czi-home"></i>&nbsp;Addresse</h4>
+                <ul class="list-unstyled font-size-sm">
+                  <li><span class="text-muted">Kontakt:&nbsp;</span>$CheckoutAddress.FirstName $CheckoutAddress.Surname</li>
+                  <li><span class="text-muted">Addresse:&nbsp;</span>$CheckoutAddress.Street, $CheckoutAddress.ZIP $CheckoutAddress.City</li>
+                  <li><span class="text-muted">Telefon:&nbsp;</span>$CheckoutAddress.PhoneNumber</li>
+				  <li><span class="text-muted">E-Mail:&nbsp;</span>$CheckoutAddress.Email</li>
+				  <input type="hidden" id="OrderProfileFeature_RegistrationForm_useraccounttab_ZIP" value="$CheckoutAddress.ZIP" />
+				  <input type="hidden" id="OrderProfileFeature_RegistrationForm_useraccounttab_City" value="$CheckoutAddress.City" />
+                </ul>
+            </div>
+          </div>
+        </aside>
+
+			<!-- Navigation (mobile)-->
+				<div class="col-12 d-lg-none">
+				  <div class="d-flex pt-4 mt-3">
+					<div class="w-50 pr-3"><a class="btn btn-secondary btn-block" href="$LinkCheckoutAddress"><i class="czi-arrow-left mt-sm-0 mr-1"></i><span class="d-none d-sm-inline">Zurück zum Warenkorb</span><span class="d-inline d-sm-none">Zurück</span></a></div>
+					<div class="w-50 pl-2"><button type="submit" name="action_continue" value="Weiter zur Bestellübersicht" class="action action btn btn-primary btn-shadow mb-2 mr-1 col-12" id="OrderProfileFeature_RegistrationForm_useraccounttab_action_continue">
+								<span class="d-none d-sm-inline">Weiter zur Bestellübersicht</span><span class="d-inline d-sm-none">Weiter</span><i class="czi-arrow-right mt-sm-0 ml-1"></i></a>
+							</button></div>
+				  </div>
+				</div>
+
 		</form>
     <!-- Toast: Delivery-->
     <div class="toast-container toast-bottom-center">
@@ -130,32 +157,6 @@
 				  
 				
 			</section>
-<!-- Sidebar-->
-        <aside class="col-lg-4 pt-4 pt-lg-0">
-          <div class="cz-sidebar-static rounded-lg box-shadow-lg ml-lg-auto">
-            <div class="widget mb-3">
-                <h2 class="h6 mb-4 text-center"><i class="h6 text-body czi-home"></i>&nbsp;Addresse</h4>
-                <ul class="list-unstyled font-size-sm">
-                  <li><span class="text-muted">Kontakt:&nbsp;</span>$CheckoutAddress.FirstName $CheckoutAddress.Surname</li>
-                  <li><span class="text-muted">Addresse:&nbsp;</span>$CheckoutAddress.Street, $CheckoutAddress.ZIP $CheckoutAddress.City</li>
-                  <li><span class="text-muted">Telefon:&nbsp;</span>$CheckoutAddress.PhoneNumber</li>
-				  <li><span class="text-muted">E-Mail:&nbsp;</span>$CheckoutAddress.Email</li>
-				  <input type="hidden" id="OrderProfileFeature_RegistrationForm_useraccounttab_ZIP" value="$CheckoutAddress.ZIP" />
-				  <input type="hidden" id="OrderProfileFeature_RegistrationForm_useraccounttab_City" value="$CheckoutAddress.City" />
-                </ul>
-            </div>
-          </div>
-        </aside>
-
-			<!-- Navigation (mobile)-->
-				<div class="col-12 d-lg-none">
-				  <div class="d-flex pt-4 mt-3">
-					<div class="w-50 pr-3"><a class="btn btn-secondary btn-block" href="$LinkCheckoutAddress"><i class="czi-arrow-left mt-sm-0 mr-1"></i><span class="d-none d-sm-inline">Zurück zum Warenkorb</span><span class="d-inline d-sm-none">Zurück</span></a></div>
-					<div class="w-50 pl-2"><button type="submit" name="action_continue" value="Weiter zur Bestellübersicht" class="action action btn btn-primary btn-shadow mb-2 mr-1 col-12" id="OrderProfileFeature_RegistrationForm_useraccounttab_action_continue">
-								<span class="d-none d-sm-inline">Weiter zur Bestellübersicht</span><span class="d-inline d-sm-none">Weiter</span><i class="czi-arrow-right mt-sm-0 ml-1"></i></a>
-							</button></div>
-				  </div>
-				</div>
 
 		</div>
 		
