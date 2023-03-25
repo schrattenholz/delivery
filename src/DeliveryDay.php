@@ -204,7 +204,7 @@ class DeliveryDay extends DataObject
 		
 		if($variantID>0){
 			$product=Preis::get()->byID($variantID);
-			if($product->getPreSaleMode()=="presale"){			
+			if(isset($product) && $product->getPreSaleMode()=="presale"){			
 				$deliveryStart=strtotime($product->PreSaleEnd);
 			}else{
 				$deliveryStart=strtotime($deliverySetup->DeliveryStart);
