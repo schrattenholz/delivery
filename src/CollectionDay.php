@@ -76,7 +76,7 @@ class CollectionDay extends DeliveryDay
 		Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate variantID=".$variantID);
 		if($variantID>0){
 			$product=Preis::get()->byID($variantID);
-			if($product->getPreSaleMode()=="presale"){			
+			if(isset($product) && $product->getPreSaleMode()=="presale"){			
 				$deliveryStart=strtotime($product->PreSaleEnd);
 			}else{
 				$deliveryStart=strtotime($deliverySetup->DeliveryStart);
