@@ -5,9 +5,10 @@
           <select class="form-control custom-select" name="Delivery" id="Delivery" <% if $getActiveDeliveryTypes.First.Type=="delivery" %><% else %>disabled<% end_if %>>	   
 			<% loop $getCities($Top.CurrentOrderCustomerGroup.ID).Sort('Title') %>
 				<% loop $Top.DeliveryDatesForCity($Top.CurrentOrderCustomerGroup.ID, $Delivery_ZIPCodes.First.Title,$Title).Dates %>
+				
 					<% if $First %>
-						<% loop $Up.ZIPs %>$Title - $Top.CheckoutAddress.ZIP<% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %>
-							<option <% loop $Up.ZIPs %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_loop %>
+
+							<option <% loop $Up.ZIPs %><% if $Up.Title == $Top.CheckoutAddress.City %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_if %><% end_loop %>
 							value="$Up.ID"
 							data-city="$Up.Title"
 							data-zip="<% loop $Up.ZIPs %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
