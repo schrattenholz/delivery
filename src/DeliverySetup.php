@@ -266,7 +266,7 @@ class DeliverySetup extends DataObject
 		//var_dump($activeRoutes);
 		Injector::inst()->get(LoggerInterface::class)->error("DeliverySetup = ".$this->Title. "  ID= ".$this->ID);
 		foreach($activeRoutes as $r){
-			Injector::inst()->get(LoggerInterface::class)->error("geushcte Stadt = ".$City. " in Route ".$r);
+			//Injector::inst()->get(LoggerInterface::class)->error("geushcte Stadt = ".$City. " in Route ".$r);
 		}
 		// Object, das den Ort und alle Routen beinhaltet, auf denen der Ort angefahren wird
 		$cityAndRoutes=new ArrayList();

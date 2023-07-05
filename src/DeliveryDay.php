@@ -224,7 +224,7 @@ class DeliveryDay extends DataObject
 			}else{
 				$liefertermin=$this->genDateTime(strtotime($this->owner->Day));
 			}
-			Injector::inst()->get(LoggerInterface::class)->error("original Termin ". $liefertermin->format("Y.m.d"));
+			//Injector::inst()->get(LoggerInterface::class)->error("original Termin ". $liefertermin->format("Y.m.d"));
 			if(!$this->WeekIsInActiveInterval($this->Route->Interval,$liefertermin->format("Y-m-d"))){	
 				// Wenn das Interval (gerade/ungerade) nicht passt, nimmm die naechste Woche
 				//Injector::inst()->get(LoggerInterface::class)->error("nehste Woche wegen Interval ". $liefertermin->format("Y.m.d"));
