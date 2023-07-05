@@ -250,9 +250,9 @@ class DeliverySetup extends DataObject
 			$sqlQuery->addWhere(['Delivery_SetupID = ?' => $this->ID]);
 			$result = $sqlQuery->execute();
 
-			$route_deliveryDays=$this->Route_DeliveryDays()->innerJoin("Delivery_Setup_Route_DeliveryDays", "\"RDD\".\"DeliveryDaysID\" = \"DeliveryDays\".\"ID\"", "RDD")->where("Delivery_Setup_Route_DeliveryDays.Delivery_SetupID",3);
+			$route_deliveryDays=$this->Route_DeliveryDays()->innerJoin("Delivery_Setup_Route_DeliveryDays", "\"RDD\".\"DeliveryDaysID\" = \"DeliveryDays\".\"ID\"", "RDD")->where("Delivery_Setup_Route_DeliveryDays.Delivery_SetupID",$this->ID);
 			foreach($route_deliveryDays as $dd){
-				//Injector::inst()->get(LoggerInterface::class)->error("getCityNEW route=".$dd->Delivery_SetupID);
+				
 				array_push($routes,$dd->RouteID);
 			}
 			return array_unique($routes);
@@ -264,8 +264,9 @@ class DeliverySetup extends DataObject
 	public function getCityNEW($currentOrderCustomerGroupID,$ZIP,$City){
 		$activeRoutes=$this->getActiveRoutes();
 		//var_dump($activeRoutes);
+		Injector::inst()->get(LoggerInterface::class)->error("DeliverySetup = ".$this->Title. "  ID= ".$this->ID);
 		foreach($activeRoutes as $r){
-			
+			Injector::inst()->get(LoggerInterface::class)->error("geushcte Stadt = ".$City. " in Route ".$r);
 		}
 		// Object, das den Ort und alle Routen beinhaltet, auf denen der Ort angefahren wird
 		$cityAndRoutes=new ArrayList();
@@ -276,6 +277,7 @@ class DeliverySetup extends DataObject
 			
 			$cities=ArrayList::create();
 			foreach($this->Routes()->filter('ID',$activeRoutes) as $r){
+				//Injector::inst()->get(LoggerInterface::class)->error("geushcte Stadt = ".$City. " in Route ".$r->Title);
 				// Gibt die naechsten Liefertage heraus. Filtert nach Kundengruppe. Und verwendet nur die DeliveryDays der Route, die im Liefersetup aktiviert sind
 				//$nextDeliveryDate=$r->getNextDeliveryDates($currentOrderCustomerGroupID,$this->ID);
 				// Sucht den verfuegbaren Orte auf der Route
@@ -284,7 +286,7 @@ class DeliverySetup extends DataObject
 						//$c->DeliveryDate=$nextDeliveryDate;
 						//$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
 						$cityAndRoutes->City=$c;
-						//Injector::inst()->get(LoggerInterface::class)->error("getCityNEW  c->Title=  ".$c->Title);
+						
 						array_push($routes,$r->ID);
 						//return $c;
 					}

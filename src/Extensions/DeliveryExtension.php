@@ -68,10 +68,11 @@ class DeliveryExtension extends DataExtension {
 		$deliverySetup=$this->owner->DeliverySetup();
 		
 		$cityObject=$deliverySetup->getCityNEW($currentOrderCustomerGroupID,$ZIP,$City);
-		
+		if($cityObject){
 		$datesForCity =new ArrayList();
 		
 		$datesForCity->Title=$City;
+		Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    City=".$City);
 		$datesForCity->ZIPs=$cityObject->City->Delivery_ZIPCodes();
 		$datesForCity->ID=$cityObject->City->ID;
 		$dates=new ArrayList();
@@ -79,7 +80,7 @@ class DeliveryExtension extends DataExtension {
 	
 		
 		
-		if($cityObject){
+		
 			//Injector::inst()->get(LoggerInterface::class)->error("DeliveryDatesForCity    ".$cityObject->City->Title."-".$cityObject->City->ID." Routes:".$cityObject->Routes->Count());
 			foreach($cityObject->Routes as $route){			
 				$routeObject=Route::get_by_id($route->ID);
