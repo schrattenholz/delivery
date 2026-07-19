@@ -15,7 +15,7 @@ class Delivery_ZIPCode extends DataObject
 {
 	private static $default_sort=['SortOrder'];
 	private static $db = [
-		'Title'=>'Int',
+		'Title'=>'Varchar(10)',
 		'SortOrder'=>'Int'
 	];
 	private static $belongs_many_many=[
