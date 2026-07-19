@@ -158,8 +158,8 @@ class DeliverySetup extends DataObject
 						),
 						"Eng"=>$nextDate->Eng,
 						"Time"=>array(
-							"From"=>strftime("%H:%M",strtotime($nextDate->TimeFrom)),
-							"To"=>strftime("%H:%M",strtotime($nextDate->TimeTo))
+							"From"=>date("H:i",strtotime((string) $nextDate->TimeFrom)),
+							"To"=>date("H:i",strtotime((string) $nextDate->TimeTo))
 							),
 						"Day"=>$cD->Day,
 						"ID"=>$cD->ID),
@@ -182,31 +182,31 @@ class DeliverySetup extends DataObject
 		$fields->removeByName('CollectionDays');
 		$fields->removeFieldFromTab('Root.Main','SortOrder');
 
-		$attributes=new ListboxField("Attributes", "Produktattribute",Attribute::get()->map("ID", "Title", "Bitte auswählen"));
+		$attributes=new ListboxField("Attributes", "Produktattribute",Attribute::get()->map("ID", "Title", "Bitte auswï¿½hlen"));
 		$fields->addFieldToTab('Root.Main',$attributes);
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("EnrollDeliverySetup",utf8_encode("Setze dieses Liefer-Setup bei allen Produkten ein, die eines der ausgewählten Produktattribute verwenden. (Häckchen setzen und 'Speichern', um dieses Setup einmalig auszuspielen)")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("EnrollDeliverySetup",utf8_encode("Setze dieses Liefer-Setup bei allen Produkten ein, die eines der ausgewï¿½hlten Produktattribute verwenden. (Hï¿½ckchen setzen und 'Speichern', um dieses Setup einmalig auszuspielen)")));
 		
 		// Liefer-Start festlegen
 		
-		$fields->addFieldToTab('Root.Main',DateField::create("DeliveryStart",utf8_encode("Datum der frühsten Liefermöglichkeit")));
+		$fields->addFieldToTab('Root.Main',DateField::create("DeliveryStart",utf8_encode("Datum der frï¿½hsten Liefermï¿½glichkeit")));
 		
 		// Legt fest, wieviele Wochen angeboten werden
 		$fields->addFieldsToTab('Root.Main', [
-			DropdownField::create('WeeksToShow', 'Anzahl Wochen, für die Termine angezeigt werden.( Bei 1 ist es nur der nächst mögliche Termin, bei 2 wird auch die darauf folgende Woche angezeigt)',singleton('Schrattenholz\\Delivery\\DeliverySetup')->dbObject('WeeksToShow')->enumValues())
+			DropdownField::create('WeeksToShow', 'Anzahl Wochen, fï¿½r die Termine angezeigt werden.( Bei 1 ist es nur der nï¿½chst mï¿½gliche Termin, bei 2 wird auch die darauf folgende Woche angezeigt)',singleton('Schrattenholz\\Delivery\\DeliverySetup')->dbObject('WeeksToShow')->enumValues())
         ]);
 		
-		// Regelt ob der nächst mögliche Liefertermin angeboten wird, 
+		// Regelt ob der nï¿½chst mï¿½gliche Liefertermin angeboten wird, 
 		// wenn der erste Termin durch den Bestellschluss schon abgelaufen ist
 		
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate",utf8_encode("Lieferung nur einmalig möglich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nächsten Woche angezeigt.)")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate",utf8_encode("Lieferung nur einmalig mï¿½glich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nï¿½chsten Woche angezeigt.)")));
 		
 		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));		
-		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("GeneralShippingInfo",utf8_encode("Wird im Checkout angezeigt, wenn andere LieferSetups unterdrückt werden.")));
+		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("GeneralShippingInfo",utf8_encode("Wird im Checkout angezeigt, wenn andere LieferSetups unterdrï¿½ckt werden.")));
 		
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates",utf8_encode("Es werden nur die Liefermöglchkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates",utf8_encode("Es werden nur die Liefermï¿½glchkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)")));
 		
 		// Als Standard festlegen
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsDefault",utf8_encode("Standard-Setup   (Dieses Liefer-Setup wird als Standard verwendet, wenn im Produkt im Warenkorb kein spezielles Liefer-Setup ausgewählt wurde.)")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsDefault",utf8_encode("Standard-Setup   (Dieses Liefer-Setup wird als Standard verwendet, wenn im Produkt im Warenkorb kein spezielles Liefer-Setup ausgewï¿½hlt wurde.)")));
 		// Als Haupt-Setup festlegen festlegen
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsPrimary",utf8_encode("Haupt-Setup   (Dieses Liefer-Setup wird im Warenkorb als Haupt-Setup verwendet. Andere Setups im Warenkorb, die nicht als Haupt-Setup deklariert sind, werden ignoriert. Sind mehrer Haup-Setups im Warenkorb vorhanden, wird die kleinste gemeinsame Menge an Lieferoptionen angeboten.)")));
 		
@@ -215,7 +215,7 @@ class DeliverySetup extends DataObject
 		$fields->addFieldToTab('Root.Main', $deliveryTypes);
 		
 		// OpenPrSaleSetup
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("OpenPreSaleSetup",utf8_encode("Dieses Liefersetup wird für offene Vorverkäufe verwendet.")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("OpenPreSaleSetup",utf8_encode("Dieses Liefersetup wird fï¿½r offene Vorverkï¿½ufe verwendet.")));
 		
 		
 		
@@ -226,7 +226,7 @@ class DeliverySetup extends DataObject
 		$fields->addFieldToTab('Root.Main',FormAction::create('enrollDeliverySetup')->setTitle('Liefer-Setup ausspielen'));
 		
         $deliveryDays = MultiSelectField::create('Route_DeliveryDays', 'Routen / Liefertage', $this,false,DeliveryDay::get()->Filter("ClassName","Schrattenholz\Delivery\DeliveryDay"));
-		//Es sollen nur die Einträge von DeliveryDay angezeigt werden, alle andere müssen ausgefiltert werden
+		//Es sollen nur die Eintrï¿½ge von DeliveryDay angezeigt werden, alle andere mï¿½ssen ausgefiltert werden
 		//$collectionsDays=
 		//$deliveryDays->setDisabledItems($inChangeSets);
         $fields->addFieldToTab('Root.Main', $deliveryDays);
@@ -240,7 +240,7 @@ class DeliverySetup extends DataObject
 	
 	public function getActiveRoutes(){
 		
-		// DeliveryDays sind die einzelnen Tage an denen Routen zur Verfügung stehen. 
+		// DeliveryDays sind die einzelnen Tage an denen Routen zur Verfï¿½gung stehen. 
 		// DeliveryDayID + RouteID
 		if($this->Route_DeliveryDays()){
 			$routes=[];
@@ -323,7 +323,7 @@ class DeliverySetup extends DataObject
 				foreach($r->Cities() as $c){
 					if($c->Title==$City && $c->hasZIP($ZIP)){
 						$c->DeliveryDate=$nextDeliveryDate;
-						$c->ArrivalTime=strftime("%H:%M",strtotime($c->ArrivalTime)). " Uhr";
+						$c->ArrivalTime=date("H:i",strtotime((string) $c->ArrivalTime)). " Uhr";
 						return $c;
 					}
 				}
@@ -371,7 +371,7 @@ class DeliverySetup extends DataObject
 		parent::onBeforeWrite();
 	}
 	public function onAfterWrite(){
-		//Setz dieses Liefer-Setup bei allen Produkten ein, die die eines der ausgewählten Lieferattribute verwenden
+		//Setz dieses Liefer-Setup bei allen Produkten ein, die die eines der ausgewï¿½hlten Lieferattribute verwenden
 		if($this->EnrollDeliverySetup){
 			$attributeIDs=array();
 				foreach($this->Attributes() as $s){

@@ -76,17 +76,17 @@ class CollectionDay extends DeliveryDay
 		Injector::inst()->get(LoggerInterface::class)->error("CollectionDay.getNextCollectionDate variantID=".$variantID);
 		if($variantID>0){
 			$product=Preis::get()->byID($variantID);
-			if(isset($product) && $product->getPreSaleMode()=="presale"){			
-				$deliveryStart=strtotime($product->PreSaleEnd);
+			if(isset($product) && $product->getPreSaleMode()=="presale"){
+				$deliveryStart=strtotime((string) $product->PreSaleEnd);
 			}else{
-				$deliveryStart=strtotime($deliverySetup->DeliveryStart);
+				$deliveryStart=strtotime((string) $deliverySetup->DeliveryStart);
 			}
-				
+
 		}else if ($deliverySetup->ShippingDate){
-			
-			$deliveryStart=strtotime($deliverySetup->ShippingDate);
+
+			$deliveryStart=strtotime((string) $deliverySetup->ShippingDate);
 		}else{
-			$deliveryStart=strtotime($deliverySetup->DeliveryStart);	
+			$deliveryStart=strtotime((string) $deliverySetup->DeliveryStart);
 		}
 		
 		if($deliverySetup->DeliveryStart && $deliveryStart>=$heute or isset($product) && $product->getPreSaleMode()=="presale" && $deliveryStart>=$heute or $deliverySetup->ShippingDate){
@@ -113,9 +113,9 @@ class CollectionDay extends DeliveryDay
 		return new ArrayData(
 			array("TimeFrom"=>$this->TimeFrom,
 			"TimeTo"=>$this->TimeTo,
-			"Eng"=>strftime("%Y.%m.%d",$nextDeliveryDay),
-			"Full"=>strftime("%d.%m.%Y",$nextDeliveryDay),
-			"Short"=>strftime("%d.%m",$nextDeliveryDay),
+			"Eng"=>date("Y.m.d",$nextDeliveryDay),
+			"Full"=>date("d.m.Y",$nextDeliveryDay),
+			"Short"=>date("d.m",$nextDeliveryDay),
 			"Timestamp"=>$nextDeliveryDay
 			)
 		);
@@ -139,7 +139,7 @@ class CollectionDay extends DeliveryDay
 				$nextDeliveryDateTimeStamp=strtotime('+'.$c.' week '.$firstDate->format('Y-m-d'),$firstDate->getTimestamp());
 				$nextDeliveryDate=new \DateTime();
 				$nextDeliveryDate->setTimestamp($nextDeliveryDateTimeStamp);
-				if(strftime("%Y.%m.%d",$nextDeliveryDateTimeStamp)=="1970.01.01"){
+				if(date("Y.m.d",$nextDeliveryDateTimeStamp)=="1970.01.01"){
 					$c++;
 					$nextDeliveryDateTimeStamp=strtotime('+'.$c.' week '.$firstDate->format('Y-m-d'),$firstDate->getTimestamp());
 				}
