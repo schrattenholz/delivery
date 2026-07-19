@@ -47,11 +47,11 @@ class DeliverySetup_ProductListExtension extends DataExtension{
 	// Extension for ProductList::getCMSFields
 	public function addExtension(FieldList $fields){
 		if($this->owner->ID==OrderConfig::get()->First()->ProductRootID or $this->owner->Design=="Abverkaufliste"){
-		$fields->addFieldToTab("Root.Produkte",DropdownField::create("DeliverySetupID","Liefer-Setup",DeliverySetup::get()->map('ID', 'Title'))->setEmptyString(utf8_encode('(Bitte auswählen)')),'Preise');
+		$fields->addFieldToTab("Root.Produkte",DropdownField::create("DeliverySetupID","Liefer-Setup",DeliverySetup::get()->map('ID', 'Title'))->setEmptyString('(Bitte auswÃ¤hlen)'),'Preise');
 		}
 	}
 	
-	//Speichert in jedes PriceBlockElement der gewählten Liste die Deliverywerte ein
+	//Speichert in jedes PriceBlockElement der gewï¿½hlten Liste die Deliverywerte ein
 	public function HOOK_Order_ProductListExtension_AfterWrite_Product($product){
 		if($this->owner->DeliverySetup()->IsPrimary){
 			$deliverySpecial=true;
@@ -62,12 +62,12 @@ class DeliverySetup_ProductListExtension extends DataExtension{
 		$product->DeliverySetupID=$this->owner->DeliverySetupID;
 	}
 	public function HOOK_Order_ProductListExtension_AfterWrite($ref){
-		//Liefertermin für Datum
+		//Liefertermin fï¿½r Datum
 		
 		$deliverySetup=$ref->DeliverySetup();
 		if($ref->InPreSale){
 			Injector::inst()->get(LoggerInterface::class)->error($ref->PreSaleStart.'neues Lieferdateum setzten altes Datum='.$deliverySetup->DeliveryStart);
-			$deliverySetup->DeliveryStart=strftime("%Y-%m-%d",strtotime($ref->PreSaleEnd));
+			$deliverySetup->DeliveryStart=date("Y-m-d",strtotime((string) $ref->PreSaleEnd));
 			$deliverySetup->write(); // saves the record
 		}else if($ref->ResetPreSale){
 			Injector::inst()->get(LoggerInterface::class)->error($ref->PreSaleStart.' Lieferdateum entfernen altes Datum='.$deliverySetup->DeliveryStart);

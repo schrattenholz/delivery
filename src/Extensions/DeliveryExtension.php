@@ -93,7 +93,7 @@ class DeliveryExtension extends DataExtension {
 				$cityOnRoute=$routeObject->Cities()->filter("Delivery_CityID",$cityObject->City->ID)->First();
 				foreach($data as $deliveryDay){
 					//Injector::inst()->get(LoggerInterface::class)->error("deliveryDay  city=".$cityOnRoute->ArrivalTime);
-					$deliveryDay->ArrivalTime=strftime("%H:%M",strtotime($cityOnRoute->ArrivalTime));
+					$deliveryDay->ArrivalTime=date("H:i",strtotime((string) $cityOnRoute->ArrivalTime));
 				}
 				if($data){
 					 $dates->merge($data);

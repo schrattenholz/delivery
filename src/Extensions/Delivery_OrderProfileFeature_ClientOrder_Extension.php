@@ -59,9 +59,9 @@ class Delivery_OrderProfileFeature_ClientOrder_Extension extends DataExtension {
 	}
 	public function getVersandInfo(){
 		if($this->owner->DeliveryType()->Type=="delivery" && $this->owner->ShippingDate){
-			return "am ".strftime("%d.%m.%Y",strtotime($this->owner->ShippingDate));
-		}else if($this->owner->DeliveryType->Type=="collection" && $this->owner->ShippingDate){
-			return "am ".strftime("%d.%m.%Y",strtotime($this->owner->ShippingDate))." </br>zwischen ".strftime("%H:%M",strtotime($this->owner->CollectionDay()->TimeFrom))." und ".strftime("%H:%M",strtotime($this->owner->CollectionDay()->TimeTo))." Uhr";
+			return "am ".date("d.m.Y",strtotime((string) $this->owner->ShippingDate));
+		}else if($this->owner->DeliveryType()->Type=="collection" && $this->owner->ShippingDate){
+			return "am ".date("d.m.Y",strtotime((string) $this->owner->ShippingDate))." </br>zwischen ".date("H:i",strtotime((string) $this->owner->CollectionDay()->TimeFrom))." und ".date("H:i",strtotime((string) $this->owner->CollectionDay()->TimeTo))." Uhr";
 		}else{
 			return "nach vorheriger Benachrichtigung";
 		}

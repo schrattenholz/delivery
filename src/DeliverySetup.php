@@ -182,40 +182,40 @@ class DeliverySetup extends DataObject
 		$fields->removeByName('CollectionDays');
 		$fields->removeFieldFromTab('Root.Main','SortOrder');
 
-		$attributes=new ListboxField("Attributes", "Produktattribute",Attribute::get()->map("ID", "Title", "Bitte ausw�hlen"));
+		$attributes=new ListboxField("Attributes", "Produktattribute",Attribute::get()->map("ID", "Title", "Bitte auswählen"));
 		$fields->addFieldToTab('Root.Main',$attributes);
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("EnrollDeliverySetup",utf8_encode("Setze dieses Liefer-Setup bei allen Produkten ein, die eines der ausgew�hlten Produktattribute verwenden. (H�ckchen setzen und 'Speichern', um dieses Setup einmalig auszuspielen)")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("EnrollDeliverySetup","Setze dieses Liefer-Setup bei allen Produkten ein, die eines der ausgewählten Produktattribute verwenden. (Häkchen setzen und 'Speichern', um dieses Setup einmalig auszuspielen)"));
 		
 		// Liefer-Start festlegen
 		
-		$fields->addFieldToTab('Root.Main',DateField::create("DeliveryStart",utf8_encode("Datum der fr�hsten Lieferm�glichkeit")));
+		$fields->addFieldToTab('Root.Main',DateField::create("DeliveryStart","Datum der frühesten Liefermöglichkeit"));
 		
 		// Legt fest, wieviele Wochen angeboten werden
 		$fields->addFieldsToTab('Root.Main', [
-			DropdownField::create('WeeksToShow', 'Anzahl Wochen, f�r die Termine angezeigt werden.( Bei 1 ist es nur der n�chst m�gliche Termin, bei 2 wird auch die darauf folgende Woche angezeigt)',singleton('Schrattenholz\\Delivery\\DeliverySetup')->dbObject('WeeksToShow')->enumValues())
+			DropdownField::create('WeeksToShow', 'Anzahl Wochen, für die Termine angezeigt werden.( Bei 1 ist es nur der nächst mögliche Termin, bei 2 wird auch die darauf folgende Woche angezeigt)',singleton('Schrattenholz\\Delivery\\DeliverySetup')->dbObject('WeeksToShow')->enumValues())
         ]);
 		
 		// Regelt ob der n�chst m�gliche Liefertermin angeboten wird, 
 		// wenn der erste Termin durch den Bestellschluss schon abgelaufen ist
 		
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate",utf8_encode("Lieferung nur einmalig m�glich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der n�chsten Woche angezeigt.)")));
-		
-		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("ContentProductShippingInfo",utf8_encode("Wird im Produkt unter Abhol/Lieferoptionen angezeigt")));		
-		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("GeneralShippingInfo",utf8_encode("Wird im Checkout angezeigt, wenn andere LieferSetups unterdr�ckt werden.")));
-		
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates",utf8_encode("Es werden nur die Lieferm�glchkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)")));
-		
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate","Lieferung nur einmalig möglich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nächsten Woche angezeigt.)"));
+
+		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("ContentProductShippingInfo","Wird im Produkt unter Abhol/Lieferoptionen angezeigt"));
+		$fields->addFieldToTab('Root.Texte',HTMLEditorField::create("GeneralShippingInfo","Wird im Checkout angezeigt, wenn andere LieferSetups unterdrückt werden."));
+
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoDates","Es werden nur die Liefermöglichkeiten angezeigt, aber keine Termine gennant. (Aberverkauf. Es wird geliefert, wenn alles verkauft ist)"));
+
 		// Als Standard festlegen
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsDefault",utf8_encode("Standard-Setup   (Dieses Liefer-Setup wird als Standard verwendet, wenn im Produkt im Warenkorb kein spezielles Liefer-Setup ausgew�hlt wurde.)")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsDefault","Standard-Setup   (Dieses Liefer-Setup wird als Standard verwendet, wenn im Produkt im Warenkorb kein spezielles Liefer-Setup ausgewählt wurde.)"));
 		// Als Haupt-Setup festlegen festlegen
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsPrimary",utf8_encode("Haupt-Setup   (Dieses Liefer-Setup wird im Warenkorb als Haupt-Setup verwendet. Andere Setups im Warenkorb, die nicht als Haupt-Setup deklariert sind, werden ignoriert. Sind mehrer Haup-Setups im Warenkorb vorhanden, wird die kleinste gemeinsame Menge an Lieferoptionen angeboten.)")));
-		
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("IsPrimary","Haupt-Setup   (Dieses Liefer-Setup wird im Warenkorb als Haupt-Setup verwendet. Andere Setups im Warenkorb, die nicht als Haupt-Setup deklariert sind, werden ignoriert. Sind mehrer Haup-Setups im Warenkorb vorhanden, wird die kleinste gemeinsame Menge an Lieferoptionen angeboten.)"));
+
 		//Versandarten aktivieren
 		$deliveryTypes=new CheckboxSetField( $name = "DeliveryTypes", $title = "Versandarten", DeliveryType::get() );
 		$fields->addFieldToTab('Root.Main', $deliveryTypes);
-		
+
 		// OpenPrSaleSetup
-		$fields->addFieldToTab('Root.Main',CheckboxField::create("OpenPreSaleSetup",utf8_encode("Dieses Liefersetup wird f�r offene Vorverk�ufe verwendet.")));
+		$fields->addFieldToTab('Root.Main',CheckboxField::create("OpenPreSaleSetup","Dieses Liefersetup wird für offene Vorverkäufe verwendet."));
 		
 		
 		

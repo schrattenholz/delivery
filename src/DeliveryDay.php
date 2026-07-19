@@ -225,7 +225,7 @@ class DeliveryDay extends DataObject
 				$liefertermin=$this->genDateTime(strtotime($this->owner->Day));
 			}
 			//Injector::inst()->get(LoggerInterface::class)->error("original Termin ". $liefertermin->format("Y.m.d"));
-			if(!$this->WeekIsInActiveInterval($this->Route->Interval,$liefertermin->format("Y-m-d"))){	
+			if(!$this->WeekIsInActiveInterval($this->Route()->Interval,$liefertermin->format("Y-m-d"))){	
 				// Wenn das Interval (gerade/ungerade) nicht passt, nimmm die naechste Woche
 				//Injector::inst()->get(LoggerInterface::class)->error("nehste Woche wegen Interval ". $liefertermin->format("Y.m.d"));
 				$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));			
@@ -235,7 +235,7 @@ class DeliveryDay extends DataObject
 			if($bestellschluss->getTimestamp()>=$heute){
 				//Injector::inst()->get(LoggerInterface::class)->error("bestellschluss in der zukunft ". $liefertermin->format("Y.m.d"));
 				//$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));	
-				if(!$this->WeekIsInActiveInterval($this->Route->Interval,$liefertermin->format("Y-m-d"))){	
+				if(!$this->WeekIsInActiveInterval($this->Route()->Interval,$liefertermin->format("Y-m-d"))){	
 					//Injector::inst()->get(LoggerInterface::class)->error("Woche ist nicht im interval,... erhoehen");			
 					$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));			
 				}
@@ -244,7 +244,7 @@ class DeliveryDay extends DataObject
 				// der nächste Liefertag ist nach dem Bestellschluss, es muss der uebernächste Tag genommen werden
 				//Injector::inst()->get(LoggerInterface::class)->error("naechstten Liefertag vorher   ".$liefertermin->format("Y.m.d"));	
 				$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));
-				if(!$this->WeekIsInActiveInterval($this->Route->Interval,$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()))->format('Y-m-d'))){		
+				if(!$this->WeekIsInActiveInterval($this->Route()->Interval,$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()))->format('Y-m-d'))){		
 			
 					$liefertermin=$this->genDateTime(strtotime("next ".$this->owner->Day, $liefertermin->getTimestamp()));			
 				}
