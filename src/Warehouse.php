@@ -13,7 +13,7 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Security\Permission;
 class Warehouse extends DataObject
 {
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = array (
 		'Title'=>'Varchar',
 		'Street'=>'Text',

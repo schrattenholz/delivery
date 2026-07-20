@@ -55,7 +55,7 @@ class DeliverySetup extends DataObject
 	private static $singular_name="LieferSetup";
 	private static $plural_name="LieferSetup";
 	private static $table_name="Delivery_Setup";
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = array (
 		'Title'=>'Varchar(255)',
 		'SortOrder'=>'Int',

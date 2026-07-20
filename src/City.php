@@ -20,7 +20,7 @@ class City extends DataObject
 	private static $singular_name="Orte";
 	private static $plural_name="Orte";
 	private static $table_name="Delivery_City";
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = array (
 		'Title'=>'Varchar(255)',
 		'ZIP'=>'Int',

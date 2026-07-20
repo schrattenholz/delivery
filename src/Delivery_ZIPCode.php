@@ -13,7 +13,7 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Security\Permission;
 class Delivery_ZIPCode extends DataObject
 {
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = [
 		'Title'=>'Varchar(10)',
 		'SortOrder'=>'Int'

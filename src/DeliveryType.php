@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 
 class DeliveryType extends DataObject
 {
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = array (
 		'Title'=>'Varchar(255)',
 		'SortOrder'=>'Int',

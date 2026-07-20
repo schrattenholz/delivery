@@ -34,7 +34,7 @@ use Schrattenholz\Order\Preis;
 use SilverStripe\Security\Permission;
 class CollectionDay extends DeliveryDay
 {
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = [
 		'TimeFrom'=>'Time',
 		'TimeTo'=>'Time'

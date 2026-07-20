@@ -44,7 +44,7 @@ use SilverStripe\ORM\Queries\SQLSelect;
 use SilverStripe\Security\Permission;
 class Route extends DataObject
 {
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $singular_name="Lieferroute";
 	private static $plural_name="Lieferrouten";
 	private static $table_name="Delivery_Route";

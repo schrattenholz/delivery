@@ -35,7 +35,7 @@ use SilverStripe\Security\Permission;
 use Schrattenholz\Order\Preis;
 class DeliveryDay extends DataObject
 {
-	private static $default_sort=['SortOrder'];
+	private static $default_sort='SortOrder';
 	private static $db = array (
 		'Title'=>'Varchar(255)',
 		'Day'=>'Enum("monday, tuesday, wednesday, thursday, friday, saturday, sunday","monday")',
