@@ -77,6 +77,5 @@ class Delivery_Preis_Extension extends Extension {
 		}else{
 			$this->owner->DeliverySpecial=0;
 		}
-		parent::onBeforeWrite();
 	}
 }
