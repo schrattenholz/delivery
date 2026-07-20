@@ -2,9 +2,9 @@
 
 namespace Schrattenholz\Delivery;
 
-use Silverstripe\Forms\TimeField;
-use SilverStripe\View\ArrayData;
-use Silverstripe\Forms\NumericField;
+use SilverStripe\Forms\TimeField;
+use SilverStripe\Model\ArrayData;
+use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\CheckboxSetField;
@@ -25,7 +25,7 @@ use SilverStripe\Forms\GridField\GridFieldFilterHeader;
 use Symbiote\GridFieldExtensions\GridFieldEditableColumns;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 use Schrattenholz\OrderProfileFeature\OrderCustomerGroup;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 //Debugging
 use SilverStripe\Core\Injector\Injector;
 use Psr\Log\LoggerInterface;

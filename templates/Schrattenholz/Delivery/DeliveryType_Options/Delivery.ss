@@ -1,4 +1,4 @@
-<% loop $DeliverySetup %>
+<% with $DeliverySetup %>
 	<% if $Top.getActiveDeliveryTypes.Filter("Type","delivery").Count>0%>
      <div id="DeliveryContainer" class="form-group delivery">
 		<% if $getCity($Top.CurrentOrderCustomerGroup.ID,$Top.CheckoutAddress.ZIP,$Top.CheckoutAddress.City) %>
@@ -28,4 +28,4 @@
         <input type="hidden" id="deliveryRoute" name="DeliveryRoute" <% if $Top.Basket.RouteID %>value="$Top.Basket.RouteID"<% end_if %> />
      </div> 
 	<% end_if %>
-<% end_loop %>
+<% end_with %>

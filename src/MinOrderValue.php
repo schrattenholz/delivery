@@ -9,7 +9,7 @@ Join-Tabelle für die many_many Beziehung der Produkte mit der entsprechenden Ku
 namespace Schrattenholz\Delivery;
 
 use Schrattenholz\OrderProfileFeature\OrderCustomerGroup;
-use Silverstripe\ORM\DataObject;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
 class MinOrderValue extends DataObject{
 	private static $table_name="Delivery_MinOrderValue";

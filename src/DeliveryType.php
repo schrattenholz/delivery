@@ -4,12 +4,12 @@ namespace Schrattenholz\Delivery;
 
 use Schrattenholz\OrderProfileFeature\OrderCustomerGroup;
 use SilverStripe\ORM\DataObject;
-use Silverstripe\Forms\TextField;
-use Silverstripe\Forms\NumericField;
-use Silverstripe\Forms\CheckboxField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\CheckboxSetField;
-use Silverstripe\Forms\DropdownField;
-use Silverstripe\Forms\HiddenField;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\Security\Permission;

@@ -3,7 +3,7 @@
 namespace Schrattenholz\Delivery;
 
 
-use Silverstripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\ORM\Queries\SQLUpdate;
@@ -11,7 +11,7 @@ use SilverStripe\ORM\Queries\SQLUpdate;
 use SilverStripe\Core\Injector\Injector;
 use Psr\Log\LoggerInterface;
 
-class Delivery_Order_Extension extends DataExtension {
+class Delivery_Order_Extension extends Extension {
 	private static $allowed_actions = [
 		'getDeliveryOptions'
 	];

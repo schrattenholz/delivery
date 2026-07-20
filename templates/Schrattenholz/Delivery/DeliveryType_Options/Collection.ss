@@ -1,5 +1,5 @@
 <% if not $OpenPreSaleProductInBasket %>
-	<% loop $DeliverySetup %>
+	<% with $DeliverySetup %>
 	<div id="CollectionContainer" class="form-group collection">
 		<select class="form-control custom-select" name="CollectionDay" <% if $Top.Basket.DeliveryType.Type =="delivery" %> <% else %>required="required" <% end_if %>>
 			<option value="" data-day="" data-timefrom="" data-timeto="">Wählen Sie Ihren Abholtag</option>
@@ -14,5 +14,5 @@
 		</select>
 		<input type="hidden" id="collectionDate" name="CollectionDate" <% if $Top.CheckoutAddress.CollectionDate %>value="$Top.CheckoutAddress.CollectionDate"<% end_if %> />
 		</div>
-	<% end_loop %>	
+	<% end_with %>
 <% end_if %>

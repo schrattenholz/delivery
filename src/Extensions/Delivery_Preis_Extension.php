@@ -3,7 +3,7 @@
 namespace Schrattenholz\Delivery;
 
 
-use Silverstripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DropdownField;
@@ -13,7 +13,7 @@ use SilverStripe\ORM\Queries\SQLUpdate;
 use SilverStripe\Core\Injector\Injector;
 use Psr\Log\LoggerInterface;
 
-class Delivery_Preis_Extension extends DataExtension {
+class Delivery_Preis_Extension extends Extension {
 	private static $db=[
 		"DeliverySpecial"=>"Boolean"
 	];

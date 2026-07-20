@@ -2,10 +2,10 @@
 
 namespace Schrattenholz\Delivery;
 
-use Silverstripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataList;
-use SilverStripe\ORM\ArrayList;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Injector\Injector;
@@ -21,7 +21,7 @@ use Schrattenholz\Order\OrderConfig;
 use Schrattenholz\Order\Preis;
 use Schrattenholz\Order\Product;
 
-class DeliveryExtension extends DataExtension {
+class DeliveryExtension extends Extension {
 	private static $allowed_actions = array (
 		'getCities',
 		'getDeliveryTypes',
@@ -47,10 +47,7 @@ class DeliveryExtension extends DataExtension {
 		$checkoutAddress=$this->owner->getCheckoutAddress();
 		$data=new ArrayData($this->owner);
 		
-		return $this->owner->customise($data)->renderWith(ThemeResourceLoader::inst()->findTemplate(
-				"Schrattenholz\\Delivery\\DeliveryType_Options\\".ucfirst(DeliveryType::get()->byID($deliveryTypeID)->Type),
-				SSViewer::config()->uninherited('themes')
-			));
+		return $this->owner->customise($data)->renderWith("Schrattenholz\\Delivery\\DeliveryType_Options\\".ucfirst(DeliveryType::get()->byID($deliveryTypeID)->Type));
 		//return $paginatedProducts;
 	}
 	public function getShippingOptions($data){
@@ -58,10 +55,7 @@ class DeliveryExtension extends DataExtension {
 		$productID=$data['productID'];
 
 		$data=new ArrayData(['ID'=>$productID,'v'=>$priceBlockElementID]);
-		return $this->owner->customise($data)->renderWith(ThemeResourceLoader::inst()->findTemplate(
-				"Schrattenholz\\OrderProfileFeature\\Includes\\Product_Info_ShippingOptions",
-				SSViewer::config()->uninherited('themes')
-			));
+		return $this->owner->customise($data)->renderWith("Schrattenholz\\OrderProfileFeature\\Includes\\Product_Info_ShippingOptions");
 		//return $paginatedProducts;
 	}
 	public function DeliveryDatesForCity($currentOrderCustomerGroupID,$ZIP,$City,$productID=0,$variantID=0){
@@ -452,10 +446,7 @@ class DeliveryExtension extends DataExtension {
 		return CollectionDay::get();
 	}
 	public function CheckoutAddressDeliveryForm(){
-		return $this->getOwner()->renderWith(ThemeResourceLoader::inst()->findTemplate(
-				"Schrattenholz\\Delivery\\Includes\\CheckoutAddressDeliveryForm",
-				SSViewer::config()->uninherited('themes')
-			));
+		return $this->getOwner()->renderWith("Schrattenholz\\Delivery\\Includes\\CheckoutAddressDeliveryForm");
 	}
 	function utf8_urldecode($str) {
 		$str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($str));

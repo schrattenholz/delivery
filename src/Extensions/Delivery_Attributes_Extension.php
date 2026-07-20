@@ -2,10 +2,10 @@
 
 namespace Schrattenholz\Delivery;
 
-use Silverstripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataList;
-use SilverStripe\ORM\ArrayList;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Injector\Injector;
@@ -20,7 +20,7 @@ use SilverStripe\View\ThemeResourceLoader;
 use Schrattenholz\Order\OrderConfig;
 use Schrattenholz\Order\Preis;
 
-class Delivery_Attributes_Extension extends DataExtension {
+class Delivery_Attributes_Extension extends Extension {
 	private static $has_one=[
 		'DeliverySetups'=>DeliverySetup::class
 	];
