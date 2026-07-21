@@ -232,7 +232,7 @@ class DeliveryExtension extends Extension {
 			return DeliveryConfig::get()->First();	
 	}
 	public function setCheckoutDelivery($data){
-		$returnValues=new ArrayList(['Status'=>'good','Message'=>false,'Value'=>false]);
+		$returnValues=new ArrayData(['Status'=>'good','Message'=>false,'Value'=>false]);
 		$personenDaten=$this->owner->getCheckoutAddress();
 		$delivery=json_decode($this->getOwner()->utf8_urldecode($data['delivery']),true);
 		$basket=$this->owner->getBasket();
