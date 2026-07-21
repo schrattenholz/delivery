@@ -195,7 +195,7 @@ class DeliverySetup extends DataObject
 			DropdownField::create('WeeksToShow', 'Anzahl Wochen, für die Termine angezeigt werden.( Bei 1 ist es nur der nächst mögliche Termin, bei 2 wird auch die darauf folgende Woche angezeigt)',singleton('Schrattenholz\\Delivery\\DeliverySetup')->dbObject('WeeksToShow')->enumValues())
         ]);
 		
-		// Regelt ob der n�chst m�gliche Liefertermin angeboten wird, 
+		// Regelt ob der nächst mögliche Liefertermin angeboten wird,
 		// wenn der erste Termin durch den Bestellschluss schon abgelaufen ist
 		
 		$fields->addFieldToTab('Root.Main',CheckboxField::create("NoNextDeliveryDate","Lieferung nur einmalig möglich. (Ist der Bestellschluss erreicht, wird kein Alternativtermin in der nächsten Woche angezeigt.)"));
@@ -226,7 +226,7 @@ class DeliverySetup extends DataObject
 		$fields->addFieldToTab('Root.Main',FormAction::create('enrollDeliverySetup')->setTitle('Liefer-Setup ausspielen'));
 		
         $deliveryDays = MultiSelectField::create('Route_DeliveryDays', 'Routen / Liefertage', $this,false,DeliveryDay::get()->Filter("ClassName","Schrattenholz\Delivery\DeliveryDay"));
-		//Es sollen nur die Eintr�ge von DeliveryDay angezeigt werden, alle andere m�ssen ausgefiltert werden
+		//Es sollen nur die Einträge von DeliveryDay angezeigt werden, alle andere müssen ausgefiltert werden
 		//$collectionsDays=
 		//$deliveryDays->setDisabledItems($inChangeSets);
         $fields->addFieldToTab('Root.Main', $deliveryDays);
@@ -240,7 +240,7 @@ class DeliverySetup extends DataObject
 	
 	public function getActiveRoutes(){
 		
-		// DeliveryDays sind die einzelnen Tage an denen Routen zur Verf�gung stehen. 
+		// DeliveryDays sind die einzelnen Tage an denen Routen zur Verfügung stehen.
 		// DeliveryDayID + RouteID
 		if($this->Route_DeliveryDays()){
 			$routes=[];
@@ -371,7 +371,7 @@ class DeliverySetup extends DataObject
 		parent::onBeforeWrite();
 	}
 	public function onAfterWrite(){
-		//Setz dieses Liefer-Setup bei allen Produkten ein, die die eines der ausgew�hlten Lieferattribute verwenden
+		//Setz dieses Liefer-Setup bei allen Produkten ein, die die eines der ausgewählten Lieferattribute verwenden
 		if($this->EnrollDeliverySetup){
 			$attributeIDs=array();
 				foreach($this->Attributes() as $s){
