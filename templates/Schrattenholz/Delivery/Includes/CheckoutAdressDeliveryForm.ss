@@ -29,11 +29,11 @@
 						  <% if $Routes %>
 
 							<option value="$ID" data-city="$Title" 
-						  data-routes="<% loop $Routes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-						  data-deliverydate="<% loop $Routes %>$getNextDeliveryDate($Top.CurrentOrderCustomerGroup.ID)<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-						  data-deliveryroute="<% loop $Routes %>$ID<% if $Last %><% else %>,<% end_if %><% end_loop %>"
-						  data-arrivaltime="<% loop $Routes %>$ArrivalTime.Format('HH:mm')<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-						  data-zip="<% loop $ZIPCodes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>"
+						  data-routes="<% loop $Routes %>$Title<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+						  data-deliverydate="<% loop $Routes %>$getNextDeliveryDate($Top.CurrentOrderCustomerGroup.ID)<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+						  data-deliveryroute="<% loop $Routes %>$ID<% if $IsLast %><% else %>,<% end_if %><% end_loop %>"
+						  data-arrivaltime="<% loop $Routes %>$ArrivalTime.Format('HH:mm')<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+						  data-zip="<% loop $ZIPCodes %>$Title<% if $IsLast %><% else %>,<% end_if %><% end_loop %>"
 						  >
 						  $Title
 						  </option>
@@ -47,11 +47,11 @@
                           <% loop $Cities.Sort("Title") %>
 						  <% if $Routes %>
 						  <option value="$ID" data-city="$Title" 
-						  data-routes="<% loop $Routes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-						  data-deliverydate="<% loop $Routes %>$getNextDeliveryDate($Top.CurrentOrderCustomerGroup.ID)<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-						  data-deliveryroute="<% loop $Routes %>$ID<% if $Last %><% else %>,<% end_if %><% end_loop %>"
-						  data-arrivaltime="<% loop $Routes %>$ArrivalTime.Format('HH:mm')<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-						  data-zip="<% loop $ZIPCodes %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>"
+						  data-routes="<% loop $Routes %>$Title<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+						  data-deliverydate="<% loop $Routes %>$getNextDeliveryDate($Top.CurrentOrderCustomerGroup.ID)<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+						  data-deliveryroute="<% loop $Routes %>$ID<% if $IsLast %><% else %>,<% end_if %><% end_loop %>"
+						  data-arrivaltime="<% loop $Routes %>$ArrivalTime.Format('HH:mm')<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+						  data-zip="<% loop $ZIPCodes %>$Title<% if $IsLast %><% else %>,<% end_if %><% end_loop %>"
 						  >
 						  $Title
 						  </option>

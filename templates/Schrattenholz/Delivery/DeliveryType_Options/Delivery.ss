@@ -6,13 +6,13 @@
 			<% loop $getCities($Top.CurrentOrderCustomerGroup.ID).Sort('Title') %>
 				<% loop $Top.DeliveryDatesForCity($Top.CurrentOrderCustomerGroup.ID, $Delivery_ZIPCodes.First.Title,$Title).Dates %>
 				
-					<% if $First %>
+					<% if $IsFirst %>
 
 							<option <% loop $Up.ZIPs %><% if $Up.Title == $Top.CheckoutAddress.City %><% if $Title==$Top.CheckoutAddress.ZIP %> selected<% end_if %><% end_if %><% end_loop %>
 							value="$Up.ID"
 							data-city="$Up.Title"
-							data-zip="<% loop $Up.ZIPs %>$Title<% if $Last %><% else %>,<% end_if %><% end_loop %>" 
-							data-deliverydata="<% end_if %><% if $First %><% else %>;<% end_if %>$DayShort, $Short|$Eng|$RouteID|$ArrivalTime<% if $Last %>">
+							data-zip="<% loop $Up.ZIPs %>$Title<% if $IsLast %><% else %>,<% end_if %><% end_loop %>" 
+							data-deliverydata="<% end_if %><% if $IsFirst %><% else %>;<% end_if %>$DayShort, $Short|$Eng|$RouteID|$ArrivalTime<% if $IsLast %>">
 							$Up.Title			
 							</option>
 					<% end_if %>
